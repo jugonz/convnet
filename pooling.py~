@@ -1,4 +1,0 @@
-from layer import Layer
-
-class PoolingLayer(Layer):
-    def __init__(self,
