@@ -48,14 +48,14 @@ class ConvolutionLayer(Layer):
 
         return convolved
 
-    def backward_prop(self, grad, inp):
-        # assume grad is np datatype that represents
-        # a column vector holding deltas from next layer
-        # inp is the training data (ONE sample)
+    # back propagation: return the delta from this layer for use in the previous layer
+    # works for all layers except output layer
+    def backward_prop(self, deltaNextLayer):
+        # deltaNextLayer is the delta from the next layer (closer to the output layer)
         output = self.forward_prop(inp)
+        outputDeriv = output * (1 - output)
 
-        update = self.learningRate * grad * output
-        self.W += update
+        return np.dot(self.W.T, deltaNextLayer) * outputDeriv # * is element-wise prod
 
     def update(self, w_grad, b_grad):
         pass
