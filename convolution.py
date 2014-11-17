@@ -10,16 +10,17 @@ import scipy.signal as signal
 #
 # We generate our own W (filters) and B (biases)
 class ConvolutionLayer(Layer):
-    def __init__(self, numFilters, filterDim):
+    def __init__(self, numFilters, filterDim, learningRate):
         self.numFilters = numFilters
         self.filterDim = filterDim
 
         # need to initialize weights... one filterDim x filterDim per filter
         # in numpy indexing works differently than matlab, so store
         # number of filter FIRST
-        self.W = numpy.random.randn(numFilters, filterDim, filterDim)
+        self.W = np.random.randn(numFilters, filterDim, filterDim)
         # biases: one for each filter
-        self.B = numpy.zeros(numFilters)
+        self.B = np.zeros(numFilters)
+        self.learningRate = learningRate
 
     def _sigmoid(self, x):
         return 1 / (1 + np.exp(-1 * x))
@@ -47,8 +48,14 @@ class ConvolutionLayer(Layer):
 
         return convolved
 
-    def backward_prop(self, inp):
-        pass
+    def backward_prop(self, grad, inp):
+        # assume grad is np datatype that represents
+        # a column vector holding deltas from next layer
+        # inp is the training data (ONE sample)
+        output = self.forward_prop(inp)
+
+        update = self.learningRate * grad * output
+        self.W += update
 
     def update(self, w_grad, b_grad):
         pass
