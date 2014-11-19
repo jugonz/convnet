@@ -28,4 +28,5 @@ class FullyConnectedLayer(Layer):
         return np.dot(self.W.T, deltaNextLayer) * outputDeriv # * is element-wise prod
 
     def update(self, w_grad, b_grad):
-        pass
+        self.W -= self.learningRate * w_grad
+        self.B -= self.learningRate * b_grad

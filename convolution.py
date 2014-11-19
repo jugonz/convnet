@@ -58,4 +58,6 @@ class ConvolutionLayer(Layer):
         return np.dot(self.W.T, deltaNextLayer) * outputDeriv # * is element-wise prod
 
     def update(self, w_grad, b_grad):
-        pass
+        # TODO: check if we add or subtract here
+        self.W -= self.learningRate * w_grad
+        self.B -= self.learningRate * b_grad
