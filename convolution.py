@@ -10,20 +10,22 @@ import scipy.signal as signal
 #
 # We generate our own W (filters) and B (biases)
 class ConvolutionLayer(Layer):
-    def __init__(self, numFilters, filterDim, learningRate):
+    def __init__(self, numFilters, filterDim, nonlinear, nonlinearDeriv):
         self.numFilters = numFilters
         self.filterDim = filterDim
 
-        # need to initialize weights... one filterDim x filterDim per filter
-        # in numpy indexing works differently than matlab, so store
-        # number of filter FIRST
+        # one filterDim x filterDim per filter
         self.W = np.random.randn(numFilters, filterDim, filterDim)
         # biases: one for each filter
         self.B = np.zeros(numFilters)
-        self.learningRate = learningRate
 
-    def _sigmoid(self, x):
-        return 1 / (1 + np.exp(-1 * x))
+        self.nonlinearFunc = nonlinear
+        self.nonlinearDeriv = nonlinearDeriv
+
+    def init_weights(self, weights):
+        # Assumes that weights is a numpy datatype.
+        assert(self.W.shape == weights.shape)
+        self.W = weights
 
     def forward_prop(self, inp):
         # for now, assume inp is np datatype
@@ -41,23 +43,26 @@ class ConvolutionLayer(Layer):
                 image = inp[i]
                 filt = self.W[j]
 
-                output = self._sigmoid(signal.correlate2d(image, filt, "valid"))
+                output = self.nonlinearFunc(signal.correlate2d(image, filt, "valid") + b[j])
 
                 # now, save the output
                 convolved[i, j] = output
 
         return convolved
 
-    # back propagation: return the delta from this layer for use in the previous layer
-    # works for all layers except output layer
-    def backward_prop(self, deltaNextLayer):
-        # deltaNextLayer is the delta from the next layer (closer to the output layer)
-        output = self.forward_prop(inp)
-        outputDeriv = output * (1 - output)
+    # back propagation: return the error from this layer for use in the previous layer
+    def backward_prop(self, inp, error, learningRate):
+        outputDeriv = self.nonlinearDeriv(self.forward_prop(inp))
+        newDelta = error * outputDeriv # * is element-wise prod
 
-        return np.dot(self.W.T, deltaNextLayer) * outputDeriv # * is element-wise prod
+        # this really is a convolution
+        weightUpdate = signal.convolve2d(inp, newDelta, "valid")
 
-    def update(self, w_grad, b_grad):
-        # TODO: check if we add or subtract here
-        self.W -= self.learningRate * w_grad
-        self.B -= self.learningRate * b_grad
+        # Update weights (this isn't a matrix multiplication, unfortunately).
+        for i in xrange(self.numIn):
+            for j in xrange(self.numOut):
+                self.W[i][j] += learningRate * weightUpdate[i][j]
+
+        # this should be newDelta flipped 90 degrees and a 2d convolution
+        return signal.correlate2d(newDelta, self.W, "valid")
+
