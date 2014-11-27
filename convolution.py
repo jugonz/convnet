@@ -59,8 +59,8 @@ class ConvolutionLayer(Layer):
         weightUpdate = signal.convolve2d(inp, newDelta, "valid")
 
         # Update weights (this isn't a matrix multiplication, unfortunately).
-        for i in xrange(self.numIn):
-            for j in xrange(self.numOut):
+        for i in xrange(self.numFilters):
+            for j in xrange(self.filterDim):
                 self.W[i][j] += learningRate * weightUpdate[i][j]
 
         # this should be newDelta flipped 90 degrees and a 2d convolution
