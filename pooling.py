@@ -20,15 +20,15 @@ class PoolingLayer(Layer):
         if self.type == 'max':
             pooledLoc = np.zeros((numMaps, poolW, poolW, 2))
         
-        for m in xrange(self.numMaps):
+        for m in xrange(numMaps):
             for i in xrange(poolW):
                 for j in xrange(poolW):
-                    pool = self.poolFunc[self.type](maps(m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize))
+                    pool = self.poolFunc[self.type](maps[m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize])
                     
                     if self.type == 'max':
                         pooled[m,i,j] = pool[0]
-                        pooledLoc[m,i,j,0] = pool[1,0]+i
-                        pooledLoc[m,i,j,1] = pool[1,1]+j
+                        pooledLoc[m,i,j,0] = pool[1][0]+i*self.winSize
+                        pooledLoc[m,i,j,1] = pool[1][1]+j*self.winSize
                     else:
                         pooled[m,i,j] = pool
         
@@ -49,7 +49,7 @@ class PoolingLayer(Layer):
         newDelta = np.zeros(maps.shape)
         
         if self.type == 'max':
-            (pooled, pooledLoc) = self.forward_prop(inp)
+            (pooled, pooledLoc) = self.forward_prop(maps)
             
             for m in xrange(pooledLoc.shape[0]):
                 for i in xrange(pooledLoc.shape[1]):
@@ -61,13 +61,13 @@ class PoolingLayer(Layer):
             for m in xrange(error.shape[0]):
                 for i in xrange(error.shape[1]):
                     for j in xrange(error.shape[2]):
-                        newDelta[m, i*self.winsize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize] = error[m,i,j]*np.ones((self.winSize,self.winSize))
+                        newDelta[m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize] = error[m,i,j]*np.ones((self.winSize,self.winSize))/self.winSize**2
             
         return newDelta
         
-    def _mean_pool(self, window)
+    def _mean_pool(self, window):
         return np.mean(window)
         
-    def _max_pool(self, window)
+    def _max_pool(self, window):
         return (np.max(window), np.unravel_index(np.argmax(window),(self.winSize,self.winSize)))
         
