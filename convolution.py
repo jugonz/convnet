@@ -32,7 +32,7 @@ class ConvolutionLayer(Layer):
         # and size is accessible via .shape attribute
         # and size is NumberOfImages x N x N (square input)
         numImages = inp.shape[0]
-        convSize = inp.shape[1] - filterDim + 1
+        convSize = inp.shape[1] - self.filterDim + 1
 
         convolved = np.zeros(numImages, self.numFilters, convSize, convSize)
         # unoptimized
@@ -51,8 +51,8 @@ class ConvolutionLayer(Layer):
         return convolved
 
     # back propagation: return the error from this layer for use in the previous layer
-    def backward_prop(self, inp, error, learningRate):
-        outputDeriv = self.nonlinearDeriv(self.forward_prop(inp))
+    def backward_prop(self, inp, convolvedInp, error, learningRate):
+        outputDeriv = self.nonlinearDeriv(convolvedInp)
         newDelta = error * outputDeriv # * is element-wise prod
 
         # this really is a convolution
