@@ -39,22 +39,28 @@ class FullyConnectedLayer(Layer):
         assert(self.lastActivation != None)
         assert(self.lastInput != None)
         outputDeriv = self.nonlinearDeriv(self.lastActivation)
-        newDelta = outputDeriv * error
+        derivErrorProd = outputDeriv * error # First part of output derivative.
 
         W_update = np.zeros([self.numIn, self.numOut])
 
-        # Update weights (this isn't a matrix multiplication, unfortunately).
+        # Compute weight updates (this isn't a matrix multiplication, sadly).
         for inpIt in xrange(len(self.lastInput)):
             inp = self.lastInput[inpIt]
             for i in xrange(self.numIn):
                 for j in xrange(self.numOut):
-                    update = newDelta[inpIt][j] * inp[i]
-                    self.W[i][j] += (learningRate * update) +\
+                    update = derivErrorProd[inpIt][j] * inp[i]
+                    W_update[i][j] += (learningRate * update) +\
                         (momentum * self.lastWupdate[i][j])
                     self.lastWupdate[i][j] = update
 
-        W_update[...] /= len(self.lastInput)
+        # Finish computing the output derivative.
+        newDelta = np.tile(self.W, len(self.lastInput)).T
+        for i in xrange(len(self.lastInput)):
+            for j in xrange(len(newDelta[i])):
+                newDelta[i][j] *= derivErrorProd[i][0]
+
+        # Update our weights.
+        #W_update[...] /= len(self.lastInput) # Not great for the XOR dataset.
         self.W = np.add(self.W, W_update)
 
         return newDelta
-

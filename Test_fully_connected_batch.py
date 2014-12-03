@@ -43,25 +43,17 @@ def FullyConnectedLayerBatchTest():
     for i in xrange(numIterations):
         for samplei in xrange(len(samplesToProc)):
             sample = samplesToProc[samplei]
-            # Do forward propagation on all samples.
+            # Do forward propagation on this sample.
             inputOut = inputLayer.forward_prop(sample)
             hiddenOut = hiddenLayer.forward_prop(inputOut)
             outOut = outputLayer.forward_prop(hiddenOut)
 
             # Now, do backward propagation.
-            # Note that computation of weight deltas requires information outside of a layer.
-            outWeights = np.copy(outputLayer.W)
             outDelta = np.subtract(desired[samplei], outOut)
 
             outBack = outputLayer.backward_prop(outDelta, learningRate, momentum)
-
-            tiled = np.tile(outWeights, len(sample)).T
-            for ii in xrange(len(tiled)):
-                for j in xrange(len(tiled[ii])):
-                    tiled[ii][j] *= outBack[ii]
-
-            hiddenDelta = tiled # Needs weights of output layer BEFORE update!
-            hiddenBack = hiddenLayer.backward_prop(hiddenDelta, learningRate, momentum)
+            # The output from the last back prop layer isn't useful.
+            hiddenLayer.backward_prop(outBack, learningRate, momentum)
 
             # Print the current error we're experiencing.
             if i % 100 == 0:
