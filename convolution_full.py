@@ -1,5 +1,5 @@
 from layer import Layer
-from fully_connected import FullyConnectedLayer
+from fully_connected_batch import FullyConnectedLayer
 import numpy as np
 
 class ConvolutionLayer(Layer):
