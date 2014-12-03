@@ -49,7 +49,9 @@ class ConvolutionLayer(Layer):
         return self._transformOutput(out)
         
     def backward_prop(self, error, learningRate, momentum):
-        pass
+        error = self._transformInputError(error)
+        newDelta = self.fullLayer.backward_prop(error, learningRate, momentum)
+        return self._transformOutputError(newDelta)
         
     def _transformInput(self, inp):
         # inp.shape = (c, w_img, w_img)
@@ -90,6 +92,44 @@ class ConvolutionLayer(Layer):
             
         return transOutput
         
+    def _transformInputError(self, inpError):
+        # inpError.shape = (k, w_img - w_k +1, w_img - w_k + 1)
+        
+        # check same number of filters
+        assert(inpError.shape[0] == self.numFilters)
+        
+        # check square image
+        assert(inpError.shape[1] == inpError.shape[2])
+        
+        imgSize = inpError.shape[1]
+        
+        transInputError = np.zeros((imgSize**2, self.numFilters))
+        
+        for j in xrange(imgSize):
+            for i in xrange(imgSize):
+                transInputError[j*imgSize+i,:] = inpError[:,j,i]
+                
+        return transInputError
+        
+    def _transformOutputError(self, outError):
+        # outError.shape = (w_img^2, c)
+        
+        # check same number of channels
+        assert(outError.shape[1] == self.numChannels)
+        
+        # check square image
+        assert(np.sqrt(outError.shape[0])%int(np.sqrt(outError.shape[0])) == 0)
+        
+        imgSize = int(np.sqrt(outError.shape[0]))
+        
+        transOutputError = np.zeros((self.numChannels, imgSize, imgSize))
+        
+        for j in xrange(imgSize):
+            for i in xrange(imgSize):
+                transOutputError[:,j,i] = outError[j*imgSize+i,:]
+            
+        return transOutputError
+                
     def _tanh(self, x):
         return np.tanh(x)
         

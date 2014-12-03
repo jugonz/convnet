@@ -99,6 +99,40 @@ class ConvolutionLayerTest(unittest.TestCase):
                                         [1, 1, 1]]]])
                                         
         self.filters2_bias_3ch = np.array([0, 0])
+                                        
+        self.outputError_1ch = np.array([[1],
+                                         [2],
+                                         [3],
+                                         [4],
+                                         [5],
+                                         [6],
+                                         [7],
+                                         [8],
+                                         [9],
+                                         [10],
+                                         [11],
+                                         [12],
+                                         [13],
+                                         [14],
+                                         [15],
+                                         [16]])
+                                              
+        self.outputError_2ch = np.array([[1,  17],
+                                         [2,  18],
+                                         [3,  19],
+                                         [4,  20],
+                                         [5,  21],
+                                         [6,  22],
+                                         [7,  23],
+                                         [8,  24],
+                                         [9,  25],
+                                         [10, 26],
+                                         [11, 27],
+                                         [12, 28],
+                                         [13, 29],
+                                         [14, 30],
+                                         [15, 31],
+                                         [16, 32]])
                                    
         self.conv_1ch_4filt = ConvolutionLayer(1,4,2)
         self.conv_2ch_1filt = ConvolutionLayer(2,1,2)
@@ -147,6 +181,30 @@ class ConvolutionLayerTest(unittest.TestCase):
                          [12, 16]]])
                          
         trans = self.conv_1ch_4filt._transformOutput(self.t_output_4filt)
+        self.assertTrue(np.allclose(trans, ans))
+        
+    def test_input_error_transform_1filt(self):
+        ans = self.outputError_1ch
+                        
+        trans = self.conv_2ch_1filt._transformInputError(self.t_input_1ch)
+        self.assertTrue(np.allclose(trans, ans))
+        
+    def test_input_error_transform_2filt(self):
+        ans = self.outputError_2ch
+        
+        trans = self.conv_1ch_2filt._transformInputError(self.t_input_2ch)
+        self.assertTrue(np.allclose(trans, ans))
+        
+    def test_output_error_transform_1ch(self):
+        ans = self.t_input_1ch
+        
+        trans = self.conv_1ch_4filt._transformOutputError(self.outputError_1ch)
+        self.assertTrue(np.allclose(trans, ans))
+        
+    def test_output_error_transform_2ch(self):
+        ans = self.t_input_2ch
+        
+        trans = self.conv_2ch_1filt._transformOutputError(self.outputError_2ch)
         self.assertTrue(np.allclose(trans, ans))
         
     def test_init_weights(self):
