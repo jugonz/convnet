@@ -2,19 +2,23 @@ from layer import Layer
 import numpy as np
 
 class PoolingLayer(Layer):
-    def __init__(self, winSize, type='max'):
+    def __init__(self, mapSize, winSize, type='max'):
+        self.mapSize = mapSize
         self.winSize = winSize
         self.type = type
+        self.lastOutput = None
         self.poolFunc = {'max': self._max_pool, 'mean': self._mean_pool}
         
     def forward_prop(self, maps):
+        # check same map size
+        assert(maps.shape[1] == self.mapSize)
         # check square maps
         assert(maps.shape[1] == maps.shape[2])
         # check integer number of pooling windows
         assert(maps.shape[1]%self.winSize == 0)
         
         numMaps = maps.shape[0]
-        poolW = maps.shape[1]/self.winSize
+        poolW = self.mapSize/self.winSize
         
         pooled = np.zeros((numMaps, poolW, poolW))
         if self.type == 'max':
@@ -33,23 +37,24 @@ class PoolingLayer(Layer):
                         pooled[m,i,j] = pool
         
         if self.type == 'max':          
+            self.lastOutput = (pooled, pooledLoc)
             return (pooled, pooledLoc)
         else:
+            self.lastOutput = pooled
             return pooled
         
-    def backward_prop(self, maps, error):
-        # check same number of maps
-        assert(maps.shape[0] == error.shape[0])
+    def backward_prop(self, error):
         # check square maps
-        assert(maps.shape[1] == maps.shape[2])
         assert(error.shape[1] == error.shape[2])
         # check error size corresponds to winSize
-        assert(error.shape[1] == maps.shape[1]/self.winSize)
+        assert(error.shape[1] == self.mapSize/self.winSize)
+        # check have had output
+        assert(self.lastOutput != None)
         
-        newDelta = np.zeros(maps.shape)
+        newDelta = np.zeros((error.shape[0],self.mapSize,self.mapSize))
         
         if self.type == 'max':
-            (pooled, pooledLoc) = self.forward_prop(maps)
+            (pooled, pooledLoc) = self.lastOutput
             
             for m in xrange(pooledLoc.shape[0]):
                 for i in xrange(pooledLoc.shape[1]):

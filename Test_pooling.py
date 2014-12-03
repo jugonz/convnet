@@ -48,11 +48,11 @@ class PoolingLayerTest(unittest.TestCase):
                                    [6, 5, 4],
                                    [3, 2, 1]]])
                         
-        self.max_pool4x4 = PoolingLayer(2,'max')
-        self.mean_pool4x4 = PoolingLayer(2,'mean')                
+        self.max_pool4x4 = PoolingLayer(4,2,'max')
+        self.mean_pool4x4 = PoolingLayer(4,2,'mean')                
                         
-        self.max_pool9x9 = PoolingLayer(3,'max')
-        self.mean_pool9x9 = PoolingLayer(3,'mean')
+        self.max_pool9x9 = PoolingLayer(9,3,'max')
+        self.mean_pool9x9 = PoolingLayer(9,3,'mean')
         
     def test_max_forward_prop_4x4(self):
         pool = self.max_pool4x4.forward_prop(self.maps4x4)
@@ -68,8 +68,9 @@ class PoolingLayerTest(unittest.TestCase):
                          [0, 0, 0, 0],
                          [0, 0, 0, 0],
                          [2, 0, 0, 1]]])
-                         
-        back = self.max_pool4x4.backward_prop(self.maps4x4, self.error2x2)
+                    
+        self.max_pool4x4.forward_prop(self.maps4x4)     
+        back = self.max_pool4x4.backward_prop(self.error2x2)
         self.assertTrue((back == ans).all())
         
     def test_mean_forward_prop_4x4(self):
@@ -87,7 +88,8 @@ class PoolingLayerTest(unittest.TestCase):
                          [2., 2., 1., 1.],
                          [2., 2., 1., 1.]]])/4
                          
-        back = self.mean_pool4x4.backward_prop(self.maps4x4, self.error2x2)
+        self.mean_pool4x4.forward_prop(self.maps4x4)
+        back = self.mean_pool4x4.backward_prop(self.error2x2)
         self.assertTrue((back == ans).all())    
         
     def test_max_forward_prop_9x9(self):
@@ -114,8 +116,9 @@ class PoolingLayerTest(unittest.TestCase):
                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
                          [0, 0, 0, 0, 0, 0, 0, 0, 0],
                          [3, 0, 0, 0, 2, 0, 0, 0, 1]]])
-                         
-        back = self.max_pool9x9.backward_prop(self.maps9x9, self.error3x3)
+               
+        self.max_pool9x9.forward_prop(self.maps9x9)          
+        back = self.max_pool9x9.backward_prop(self.error3x3)
         self.assertTrue((back == ans).all())
         
     def test_mean_forward_prop_9x9(self):
@@ -142,8 +145,9 @@ class PoolingLayerTest(unittest.TestCase):
                          [3., 3., 3., 2., 2., 2., 1., 1., 1.],
                          [3., 3., 3., 2., 2., 2., 1., 1., 1.],
                          [3., 3., 3., 2., 2., 2., 1., 1., 1.]]])/9
-                        
-        back = self.mean_pool9x9.backward_prop(self.maps9x9, self.error3x3)
+                 
+        self.mean_pool9x9.forward_prop(self.maps9x9)       
+        back = self.mean_pool9x9.backward_prop(self.error3x3)
         self.assertTrue(np.allclose(back, ans))
     
 if __name__ == "__main__":
