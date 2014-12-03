@@ -48,7 +48,7 @@ class ConvolutionLayer(Layer):
         out = self.fullLayer.forward_prop(inp)
         return self._transformOutput(out)
         
-    def back_prop(self, inp, error, learningTest):
+    def backward_prop(self, error, learningRate, momentum):
         pass
         
     def _transformInput(self, inp):
