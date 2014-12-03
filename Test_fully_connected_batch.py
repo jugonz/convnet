@@ -4,6 +4,7 @@ import numpy as np
 
 # Tuning paramaters.
 learningRate = 0.5
+momentum = 0.1
 numIterations = 8000
 numInput = 2
 numHidden = 2
@@ -52,7 +53,7 @@ def FullyConnectedLayerBatchTest():
             outWeights = np.copy(outputLayer.W)
             outDelta = np.subtract(desired[samplei], outOut)
 
-            outBack = outputLayer.backward_prop(outDelta, learningRate)
+            outBack = outputLayer.backward_prop(outDelta, learningRate, momentum)
 
             tiled = np.tile(outWeights, len(sample)).T
             for ii in xrange(len(tiled)):
@@ -60,7 +61,7 @@ def FullyConnectedLayerBatchTest():
                     tiled[ii][j] *= outBack[ii]
 
             hiddenDelta = tiled # Needs weights of output layer BEFORE update!
-            hiddenBack = hiddenLayer.backward_prop(hiddenDelta, learningRate)
+            hiddenBack = hiddenLayer.backward_prop(hiddenDelta, learningRate, momentum)
 
             # Print the current error we're experiencing.
             if i % 100 == 0:

@@ -15,6 +15,11 @@ class InputLayer(Layer):
         result = np.zeros([len(inp), self.numIn + 1])
         for i in xrange(len(inp)):
             result[i] = np.append(inp[i], self.bias)
+
+        # From Efficient BackProp: subtract mean from inputs
+        # and then normalize them for faster net convergence.
+        result -= np.mean(result)
+        result /= self.numIn + 1
         return result
 
     # We do no training on InputLayers.

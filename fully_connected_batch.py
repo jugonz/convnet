@@ -13,6 +13,11 @@ class FullyConnectedLayer(Layer):
         self.nonlinearDeriv = nonlinearDeriv
         self.lastInput = None
         self.lastActivation = None
+        self.lastWupdate = np.zeros([self.numIn, self.numOut])
+
+        # From Efficient BackProp: make the standard deviation
+        # of the weights be 1/sqrt(num inputs).
+        self.W /= np.sqrt(numIn)
 
     def init_weights(self, weights):
         # Assumes that weights is a numpy datatype.
@@ -26,10 +31,11 @@ class FullyConnectedLayer(Layer):
         self.lastActivation = self.nonlinearFunc(np.dot(inp, self.W))
         return self.lastActivation
 
-    # backward_prop(input, error, learningRate) computes the change
+    # backward_prop(input, error, learningRate, momentum) computes the change
     # to this layer's weights for the last propagated sample given
-    # the error (the delta from the next layer), and the learning rate.
-    def backward_prop(self, error, learningRate):
+    # the error (the delta from the next layer), the learning rate,
+    # and the momentum (contribution of previous weight update).
+    def backward_prop(self, error, learningRate, momentum):
         assert(self.lastActivation != None)
         assert(self.lastInput != None)
         outputDeriv = self.nonlinearDeriv(self.lastActivation)
@@ -38,15 +44,14 @@ class FullyConnectedLayer(Layer):
         W_update = np.zeros([self.numIn, self.numOut])
 
         # Update weights (this isn't a matrix multiplication, unfortunately).
-        #print "newDelta: ", newDelta
-        #print "self.W: ", self.W
         for inpIt in xrange(len(self.lastInput)):
             inp = self.lastInput[inpIt]
-            #print "inp: ", inp
             for i in xrange(self.numIn):
                 for j in xrange(self.numOut):
-                    #print "prod: ", newDelta[inpIt][j] * inp[i]
-                    self.W[i][j] += learningRate * newDelta[inpIt][j] * inp[i]
+                    update = newDelta[inpIt][j] * inp[i]
+                    self.W[i][j] += (learningRate * update) +\
+                        (momentum * self.lastWupdate[i][j])
+                    self.lastWupdate[i][j] = update
 
         W_update[...] /= len(self.lastInput)
         self.W = np.add(self.W, W_update)
