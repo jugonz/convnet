@@ -1,5 +1,5 @@
-from fully_connected_new import FullyConnectedLayer
-from input_layer_new import InputLayer
+from fully_connected_batch import FullyConnectedLayer
+from input_layer_batch import InputLayer
 import numpy as np
 
 # Tuning paramaters.
