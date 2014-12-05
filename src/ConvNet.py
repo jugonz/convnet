@@ -20,8 +20,11 @@ class ConvNet:
         self.labelSet = {}
         
         sections = self.config.sections()
-        for idx, label in enumerate(self.config.get('Labels', 'labelSet').split(' ')):
+        for idx, label in enumerate(self.config.get('Parameters', 'labelSet').split(' ')):
             self.labelSet[label] = idx
+            
+        self.learningRate = int(self.config.get('Parameters', 'learningRate'))
+        self.momentum = int(self.config.get('Parameters', 'momentum'))
 
         self.inputLayerPattern = 'InputLayer'
         self.convLayerPattern = 'ConvLayer[0-9]+'
