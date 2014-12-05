@@ -78,7 +78,8 @@ class ConvNet:
                 numOut = int(self.config.get(section, 'numOut'))
                 type = self.config.get(section, 'type')
 
-                layer = FullyConnectedLayer(numIn, numOut, self.nonlinearFunc[type], self.nonlinearDeriv[type])
+                layer = FullyConnectedLayer(numIn, numOut, self.nonlinearFunc[type],\
+                    self.nonlinearDeriv[type])
 
                 if self.config.get(section, 'weights') != 'None':
                     weights = json.loads(self.config.get(section, 'weights'))

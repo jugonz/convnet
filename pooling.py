@@ -38,7 +38,8 @@ class PoolingLayer(Layer):
         for m in xrange(self.numMaps):
             for i in xrange(poolW):
                 for j in xrange(poolW):
-                    pool = self.poolFunc[self.type](maps[m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize])
+                    pool = self.poolFunc[self.type](maps[m, i*self.winSize:(i+1)*self.winSize,\
+                     j*self.winSize:(j+1)*self.winSize])
 
                     if self.type == 'max':
                         pooled[m,i,j] = pool[0]
@@ -94,7 +95,8 @@ class PoolingLayer(Layer):
             for m in xrange(error.shape[0]):
                 for i in xrange(error.shape[1]):
                     for j in xrange(error.shape[2]):
-                        newDelta[m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize] = error[m,i,j]*np.ones((self.winSize,self.winSize))/self.winSize**2
+                        newDelta[m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize]\
+                         = error[m,i,j]*np.ones((self.winSize,self.winSize))/self.winSize**2
 
         return newDelta
 
