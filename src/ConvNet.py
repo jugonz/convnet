@@ -5,6 +5,7 @@ from fully_connected_batch import FullyConnectedLayer
 import numpy as np
 import ConfigParser as cp
 import json
+import misc
 import re
 
 class ConvNet:
@@ -18,11 +19,11 @@ class ConvNet:
 
         self.layers = []
         self.labelSet = {}
-        
+
         sections = self.config.sections()
         for idx, label in enumerate(self.config.get('Parameters', 'labelSet').split(' ')):
             self.labelSet[label] = idx
-            
+
         self.learningRate = int(self.config.get('Parameters', 'learningRate'))
         self.momentum = int(self.config.get('Parameters', 'momentum'))
 
@@ -49,7 +50,7 @@ class ConvNet:
                 if self.config.get(section, 'weights') != 'None':
                     weights = np.array(json.loads(self.config.get(section, 'weights')))
                     weights = np.reshape(weights, (numFilters, numChannels, filterDim, filterDim))
-                    
+
                     biases = np.array(json.loads(self.config.get(section, 'biases')))
 
                     layer.init_weights(weights, biases)
@@ -86,9 +87,9 @@ class ConvNet:
                 if self.config.get(section, 'weights') != 'None':
                     weights = np.array(json.loads(self.config.get(section, 'weights')))
                     biases = np.array(json.loads(self.config.get(section, 'biases')))
-                    
+
                     weights = np.vstack((np.reshape(weights, (numIn-1, numOut)), biases))
-                    
+
                     layer.init_weights(weights)
 
                 self.layers.append(layer)
@@ -108,24 +109,21 @@ class ConvNet:
         output = self.forward_prop(inp)
 
     def trainSample(self, sample, label):
-        sample = np.array(sample)
         assert len(sample.shape) == 2, "Not a 2D image."
         assert sample.shape[0] == sample.shape[1], "Not a square image."
+
         # given a config already
         # calls forward_prop and backward_prop on layers
         # forward_prop returns the result of the convolution
         # backward_prop defines how W/B are updated and does the update itself
         # backward_prop takes in a matrix of deltas from the next layer
         # backward_prop returns the deltas (a matrix) from that layer
-        # the delta from the last layer is determined by a dictionary
-        # self.labelDict that converts labels to the index of the output
-        # neuron that is 1 (all others are 0)
-        self.learningRate = 0.5
-        self.momentum = 0.1
 
-        self.labelDict = {str(i):i for i in xrange(11)}
+        # the delta from the last layer is determined by a dictionary
+        # self.labelSet that converts labels to the index of the output
+        # neuron that is 1 (all others are 0)
         desired = np.array([0.]*10)
-        desired[self.labelDict[label]] = 1.
+        desired[self.labelSet[label]] = 1.
 
         # First, transform our input to go through the input layer.
         inp = self._transformInput(sample.shape[0], sample)
@@ -157,43 +155,56 @@ class ConvNet:
 
     def trainSet(self, trainSet, labels, maxEpochs, epochsPerSave):
         # train all samples in loop (multiple times)
-        
+
         numSamples = trainSet.shape[0]
         for epoch in xrange(maxEpochs):
             sample_idxs = np.random.permutation(numSamples)
             for sample_idx in sample_idxs:
                 self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx])
-                
+
             # save trained cnn at this stage
             if epoch%epochsPerSave == 0:
                 self._saveTrainedConfigFile(epoch)
-                
+
         # save final trained cnn
         if maxEpochs%epochsPerSave != 0:
             self._saveTrainedConfigFile(maxEpochs)
-    
+
+    def saveFilters(self, epochNum):
+        # save all the weight matrices to matlab cell array
+        numLayers = len(self.layers)
+        valuesToSave = {"numLayers" : numLayers} # so matlab can easily know size of array
+
+        filters = np.zeros((numLayers, ), dtype = np.object) # object == cell array
+        for i in xrange(numLayers):
+            filters[i] = self.layers[i].W
+        valuesToSave["filters"] = filters
+
+        # write to disk
+        misc.saveToMatlab('filters-' + str(epochNum), valuesToSave)
+
     def _saveTrainedConfigFile(self, numEpochs):
         pathToTrainedConfigFile = self.pathToConfigFile[:-4] + '-trained-' + str(numEpochs) + '.ini'
         trainedConfigFile = open(pathToTrainedConfigFile,'w')
-        
+
         sections = self.config.sections()
         for idx,layer in enumerate(self.layers):
             if bool(re.match(self.convLayerPattern, sections[idx+2])):
                 numIn = layer.fullLayer.numIn
                 numOut = layer.fullLayer.numOut
-                
+
                 self.config.set(sections[idx+2], 'weights', str(layer.fullLayer.W[0:numIn-1,:].flatten('F').tolist()))
-                
+
                 self.config.set(sections[idx+2], 'biases', str(layer.fullLayer.W[numIn-1,:].flatten('F').tolist()))
-                
+
             elif bool(re.match(self.fullLayerPattern, sections[idx+2])):
                 numIn = layer.numIn
                 numOut = layer.numOut
-                
+
                 self.config.set(sections[idx+2], 'weights', str(layer.W[0:numIn-1,:].flatten().tolist()))
-                
+
                 self.config.set(sections[idx+2], 'biases', str(layer.W[numIn-1,:].flatten().tolist()))
- 
+
         self.config.write(trainedConfigFile)
         trainedConfigFile.close()
 
