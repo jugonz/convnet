@@ -37,7 +37,7 @@ for i=1:numLayers
     
     % Resize the image for better visibility.
     newIm = imresize(newIm, magnifyRatio);
-    % Save the image to JPG.
+    % Save the image to PNG.
     imwrite(newIm, strcat(outputName, '_layer_', num2str(i), '.png'));
 end
 end
