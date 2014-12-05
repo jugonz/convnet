@@ -16,6 +16,7 @@ class PoolingLayer(Layer):
         self.nextLayer = nextLayer
         self.type = type
         self.lastOutput = None
+        self.lastPooledLoc = None
         self.poolFunc = {'max': self._max_pool, 'mean': self._mean_pool}
 
     def forward_prop(self, maps):
@@ -47,18 +48,18 @@ class PoolingLayer(Layer):
                         pooled[m,i,j] = pool
 
         if self.type == 'max':
-            self.lastOutput = (pooled, pooledLoc)
+            self.lastOutput = pooled 
+            self.lastPooledLoc = pooledLoc
             if self.nextLayer == 'conv':
-                return (pooled, pooledLoc)
+                return pooled
             else:
-                return (pooled.flatten(), pooledLoc)
+                return pooled.flatten()
         else:
             self.lastOutput = pooled
             if self.nextLayer == 'conv':
                 return pooled
             else:
                 return pooled.flatten()
-
 
     def backward_prop(self, error, learningRate=0, momentum=0):
         if self.nextLayer == 'full':
@@ -77,7 +78,8 @@ class PoolingLayer(Layer):
         newDelta = np.zeros((error.shape[0],self.mapSize,self.mapSize))
 
         if self.type == 'max':
-            (pooled, pooledLoc) = self.lastOutput
+            pooled = self.lastOutput
+            pooledLoc = self.lastPooledLoc
 
             if self.nextLayer == 'full':
                 pooled = pooled.reshape((pooledLoc.shape[0], pooledLoc.shape[1], pooledLoc.shape[2]))

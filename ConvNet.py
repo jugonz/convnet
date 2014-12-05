@@ -16,7 +16,11 @@ class ConvNet:
         self.nonlinearDeriv = {'tanh': self._tanhDeriv, 'sigmoid': self._sigmoidDeriv}
 
         self.layers = []
+        self.labelSet = {}
+        
         sections = self.config.sections()
+        for idx, label in enumerate(self.config.get('Labels', 'labelSet').split(' ')):
+            self.labelSet[label] = idx
 
         inputLayerPattern = 'InputLayer'
         convLayerPattern = 'ConvLayer[0-9]+'
@@ -25,9 +29,9 @@ class ConvNet:
 
         # check correct structure
         assert(bool(re.match(inputLayerPattern + '(' + convLayerPattern + poolLayerPattern +\
-             ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections))))
+             ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections[1:]))))
 
-        for idx,section in enumerate(sections):
+        for idx,section in enumerate(sections[1:]):
             if bool(re.match(inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
                 channelDim = int(self.config.get(section, 'imgSize'))

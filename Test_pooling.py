@@ -62,7 +62,7 @@ class PoolingLayerTest(unittest.TestCase):
         
     def test_max_forward_prop_4x4(self):
         pool = self.max_pool4x4.forward_prop(self.maps4x4)
-        self.assertTrue((pool[0] == np.array([4*np.ones((2,2)), 8*np.ones((2,2))])).all())
+        self.assertTrue((pool == np.array([4*np.ones((2,2)), 8*np.ones((2,2))])).all())
         
     def test_max_backward_prop_4x4(self):
         ans = np.array([[[1, 0, 0, 2],
@@ -100,7 +100,7 @@ class PoolingLayerTest(unittest.TestCase):
         
     def test_max_forward_prop_9x9(self):
         pool = self.max_pool9x9.forward_prop(self.maps9x9)
-        self.assertTrue((pool[0] == np.array([9*np.ones((3,3)), 18*np.ones((3,3))])).all())
+        self.assertTrue((pool == np.array([9*np.ones((3,3)), 18*np.ones((3,3))])).all())
         
     def test_max_backward_prop_9x9(self):
         ans = np.array([[[1, 0, 0, 0, 2, 0, 0, 0, 3],
@@ -158,7 +158,7 @@ class PoolingLayerTest(unittest.TestCase):
         
     def test_max_forward_prop_4x4_full(self):
         pool = self.max_pool4x4_full.forward_prop(self.maps4x4)
-        self.assertTrue((pool[0] == np.array([4*np.ones((2,2)), 8*np.ones((2,2))]).flatten()).all())
+        self.assertTrue((pool == np.array([4*np.ones((2,2)), 8*np.ones((2,2))]).flatten()).all())
         
     def test_max_backward_prop_4x4_full(self):
         ans = np.array([[[1, 0, 0, 2],
@@ -196,7 +196,7 @@ class PoolingLayerTest(unittest.TestCase):
         
     def test_max_forward_prop_9x9_full(self):
         pool = self.max_pool9x9_full.forward_prop(self.maps9x9)
-        self.assertTrue((pool[0] == np.array([9*np.ones((3,3)), 18*np.ones((3,3))]).flatten()).all())
+        self.assertTrue((pool == np.array([9*np.ones((3,3)), 18*np.ones((3,3))]).flatten()).all())
         
     def test_max_backward_prop_9x9_full(self):
         ans = np.array([[[1, 0, 0, 0, 2, 0, 0, 0, 3],
