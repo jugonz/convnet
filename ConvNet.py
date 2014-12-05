@@ -14,7 +14,7 @@ class ConvNet:
 
         self.nonlinearFunc = {'tanh': self._tanh, 'sigmoid': self._sigmoid}
         self.nonlinearDeriv = {'tanh': self._tanhDeriv, 'sigmoid': self._sigmoidDeriv}
-        
+
         self.layers = []
         sections = self.config.sections()
 
@@ -24,67 +24,82 @@ class ConvNet:
         fullLayerPattern = 'FullLayer[0-9]+'
 
         # check correct structure
-        assert(bool(re.match(inputLayerPattern + '(' + convLayerPattern + poolLayerPattern + ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections))))
-        
+        assert(bool(re.match(inputLayerPattern + '(' + convLayerPattern + poolLayerPattern +\
+             ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections))))
+
         for idx,section in enumerate(sections):
             if bool(re.match(inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
                 channelDim = int(self.config.get(section, 'imgSize'))
-                
+
             elif bool(re.match(convLayerPattern, section)):
                 numFilters = int(self.config.get(section, 'numFilters'))
                 filterDim = int(self.config.get(section, 'filterDim'))
                 type = self.config.get(section, 'type')
-                
+
                 layer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
                 if self.config.get(section, 'weights') != 'None':
                     weights = json.loads(self.config.get(section, 'weights'))
                     weights = np.reshape(weights, (numChannels, filterDim, filterDim))
-                    
+
                     biases = json.loads(self.config.get(section, 'biases'))
                     biases = np.array(biases)
-                    
+
                     layer.init_weights(weights, biases)
-                    
+
                 self.layers.append(layer)
-                
+
                 numChannels = numFilters
                 channelDim = channelDim - filterDim + 1
-                
+
             elif bool(re.match(poolLayerPattern, section)):
                 winSize = int(self.config.get(section, 'winSize'))
                 type = self.config.get(section, 'type')
-                
+
                 if bool(re.match(convLayerPattern, sections[idx+1])):
                     nextLayer = 'conv'
                 else:
                     nextLayer = 'full'
-                    
+
                 layer = PoolingLayer(numChannels, channelDim, winSize, nextLayer, type)
-                
+
                 self.layers.append(layer)
-                
+
                 channelDim = channelDim/winSize
                 numOut = (channelDim**2*numChannels)+1
-                
-                
+
+
             else:
                 numIn = numOut
                 numOut = int(self.config.get(section, 'numOut'))
                 type = self.config.get(section, 'type')
-                
+
                 layer = FullyConnectedLayer(numIn, numOut, self.nonlinearFunc[type], self.nonlinearDeriv[type])
-                
+
                 if self.config.get(section, 'weights') != 'None':
                     weights = json.loads(self.config.get(section, 'weights'))
                     weights = np.array(weights)
-                    
+
                     biases = json.loads(self.config.get(section, 'biases'))
                     biases = np.array(biases)
-                    
+
                     layer.init_weights(weights, biases)
-                    
+
                 self.layers.append(layer)
+
+    def _transformInput(self, imageDim, input):
+        # input sample is (imgDim x imgDim)
+        # need to change it to be (1 x imgDim x imgDim) for 1 channel input
+        inp = np.zeros((1, imageDim, imageDim))
+        inp[0] = sample
+        return inp
+
+    def testSample(self, sample, label):
+        # First, transform our input to go through the input layer.
+        inp = self._transformInput(sample.shape[0], sample)
+
+        # Now, propagate our sample through the network.
+        output = self.forward_prop(inp)
 
     def trainSample(self, sample, label):
         sample = np.array(sample)
@@ -106,26 +121,32 @@ class ConvNet:
         desired = np.array([0.]*10)
         desired[self.labelDict[label]] = 1.
 
-        # input sample is (imgDim x imgDim)
-        # need to change it to be (1 x imgDim x imgDim) (1 channel input)
-        imageDim = sample.shape[0]
-        inp = np.zeros((1, imageDim, imageDim))
-        inp[0] = sample
+        # First, transform our input to go through the input layer.
+        inp = self._transformInput(sample.shape[0], sample)
 
         # Now, propagate our sample through the network.
+        output = self.forward_prop(inp)
+
+        # Compute the error.
+        error = self._error(output, desired)
+
+        # Propagate the error back through the network and update weights.
+        self.backward_prop(error)
+
+    def forward_prop(self, inp):
+        # Propagate our sample through each layer of the network.
         output = inp
         for layer in self.layers:
             output = layer.forward_prop(output)
+        return output
 
-        # Compute the error.
-        error = self.error(output, desired)
-
-        # Propagate the error back through the network and update weights.
+    def backward_prop(self, error):
+        # Propagate error through the network.
         for layer in reversed(self.layers):
             error = layer.backward_prop(error, learningRate, momentum)
 
     # implements the derivate of the error function we're using.
-    def error(self, output, desired):
+    def _error(self, output, desired):
         return np.subtract(output, desired)
 
     def trainSet(self, trainSet, labels, maxEpochs):
@@ -134,12 +155,12 @@ class ConvNet:
 
     def _tanh(self, x):
         return np.tanh(x)
-        
+
     def _sigmoid(self, x):
         pass
-        
+
     def _tanhDeriv(self, x):
         return 1.0 - x**2
-        
+
     def _sigmoidDeriv(self, x):
         pass

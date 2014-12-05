@@ -60,7 +60,7 @@ class PoolingLayer(Layer):
                 return pooled.flatten()
 
 
-    def backward_prop(self, error, learningRate, momentum):
+    def backward_prop(self, error, learningRate=0, momentum=0):
         if self.nextLayer == 'full':
             # check can properly reshape
             assert(error.shape[0] == self.numMaps*(self.mapSize/self.winSize)**2)
