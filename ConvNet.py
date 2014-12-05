@@ -11,14 +11,10 @@ class ConvNet:
     def __init__(self, pathToConfigFile):
         self.config = cp.ConfigParser()
         self.config.read(pathToConfigFile)
-<<<<<<< Updated upstream
 
-=======
-        
         self.nonlinearFunc = {'tanh': self._tanh, 'sigmoid': self._sigmoid}
         self.nonlinearDeriv = {'tanh': self._tanhDeriv, 'sigmoid': self._sigmoidDeriv}
         
->>>>>>> Stashed changes
         self.layers = []
         sections = self.config.sections()
 
@@ -28,15 +24,9 @@ class ConvNet:
         fullLayerPattern = 'FullLayer[0-9]+'
 
         # check correct structure
-<<<<<<< Updated upstream
-        assert(bool(re.match(inputLayerPattern + '[' + convLayerPattern + poolLayerPattern + ']+' + '[' + fullLayerPattern + ']+', reduce(lambda x, y: x + y, a))))
-
-        for section in sections:
-=======
         assert(bool(re.match(inputLayerPattern + '(' + convLayerPattern + poolLayerPattern + ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections))))
         
         for idx,section in enumerate(sections):
->>>>>>> Stashed changes
             if bool(re.match(inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
                 channelDim = int(self.config.get(section, 'imgSize'))
@@ -45,13 +35,6 @@ class ConvNet:
                 numFilters = int(self.config.get(section, 'numFilters'))
                 filterDim = int(self.config.get(section, 'filterDim'))
                 type = self.config.get(section, 'type')
-<<<<<<< Updated upstream
-
-                convLayer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
-                if self.config.get(section, 'weights') != 'None':
-                    pass
-
-=======
                 
                 layer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
                 if self.config.get(section, 'weights') != 'None':
@@ -65,7 +48,6 @@ class ConvNet:
                     
                 self.layers.append(layer)
                 
->>>>>>> Stashed changes
                 numChannels = numFilters
                 channelDim = channelDim - filterDim + 1
                 
