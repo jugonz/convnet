@@ -9,8 +9,9 @@ import re
 
 class ConvNet:
     def __init__(self, pathToConfigFile):
+        self.pathToConfigFile = pathToConfigFile
         self.config = cp.ConfigParser()
-        self.config.read(pathToConfigFile)
+        self.config.read(self.pathToConfigFile)
 
         self.nonlinearFunc = {'tanh': self._tanh, 'sigmoid': self._sigmoid}
         self.nonlinearDeriv = {'tanh': self._tanhDeriv, 'sigmoid': self._sigmoidDeriv}
@@ -22,32 +23,31 @@ class ConvNet:
         for idx, label in enumerate(self.config.get('Labels', 'labelSet').split(' ')):
             self.labelSet[label] = idx
 
-        inputLayerPattern = 'InputLayer'
-        convLayerPattern = 'ConvLayer[0-9]+'
-        poolLayerPattern = 'PoolLayer[0-9]+'
-        fullLayerPattern = 'FullLayer[0-9]+'
+        self.inputLayerPattern = 'InputLayer'
+        self.convLayerPattern = 'ConvLayer[0-9]+'
+        self.poolLayerPattern = 'PoolLayer[0-9]+'
+        self.fullLayerPattern = 'FullLayer[0-9]+'
 
         # check correct structure
-        assert(bool(re.match(inputLayerPattern + '(' + convLayerPattern + poolLayerPattern +\
-             ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections[1:]))))
+        assert(bool(re.match(self.inputLayerPattern + '(' + self.convLayerPattern + self.poolLayerPattern +\
+             ')+' + '(' + self.fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections[1:]))))
 
-        for idx,section in enumerate(sections[1:]):
-            if bool(re.match(inputLayerPattern, section)):
+        for idx, section in enumerate(sections[1:]):
+            if bool(re.match(self.inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
                 channelDim = int(self.config.get(section, 'imgSize'))
 
-            elif bool(re.match(convLayerPattern, section)):
+            elif bool(re.match(self.convLayerPattern, section)):
                 numFilters = int(self.config.get(section, 'numFilters'))
                 filterDim = int(self.config.get(section, 'filterDim'))
                 type = self.config.get(section, 'type')
 
                 layer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
                 if self.config.get(section, 'weights') != 'None':
-                    weights = json.loads(self.config.get(section, 'weights'))
-                    weights = np.reshape(weights, (numChannels, filterDim, filterDim))
-
-                    biases = json.loads(self.config.get(section, 'biases'))
-                    biases = np.array(biases)
+                    weights = np.array(json.loads(self.config.get(section, 'weights')))
+                    weights = np.reshape(weights, (numFilters, numChannels, filterDim, filterDim))
+                    
+                    biases = np.array(json.loads(self.config.get(section, 'biases')))
 
                     layer.init_weights(weights, biases)
 
@@ -56,11 +56,11 @@ class ConvNet:
                 numChannels = numFilters
                 channelDim = channelDim - filterDim + 1
 
-            elif bool(re.match(poolLayerPattern, section)):
+            elif bool(re.match(self.poolLayerPattern, section)):
                 winSize = int(self.config.get(section, 'winSize'))
                 type = self.config.get(section, 'type')
 
-                if bool(re.match(convLayerPattern, sections[idx+1])):
+                if bool(re.match(self.convLayerPattern, sections[idx+1])):
                     nextLayer = 'conv'
                 else:
                     nextLayer = 'full'
@@ -72,7 +72,6 @@ class ConvNet:
                 channelDim = channelDim/winSize
                 numOut = (channelDim**2*numChannels)+1
 
-
             else:
                 numIn = numOut
                 numOut = int(self.config.get(section, 'numOut'))
@@ -82,13 +81,12 @@ class ConvNet:
                     self.nonlinearDeriv[type])
 
                 if self.config.get(section, 'weights') != 'None':
-                    weights = json.loads(self.config.get(section, 'weights'))
-                    weights = np.array(weights)
-
-                    biases = json.loads(self.config.get(section, 'biases'))
-                    biases = np.array(biases)
-
-                    layer.init_weights(weights, biases)
+                    weights = np.array(json.loads(self.config.get(section, 'weights')))
+                    biases = np.array(json.loads(self.config.get(section, 'biases')))
+                    
+                    weights = np.vstack((np.reshape(weights, (numIn-1, numOut)), biases))
+                    
+                    layer.init_weights(weights)
 
                 self.layers.append(layer)
 
@@ -154,9 +152,46 @@ class ConvNet:
     def _error(self, output, desired):
         return np.subtract(output, desired)
 
-    def trainSet(self, trainSet, labels, maxEpochs):
+    def trainSet(self, trainSet, labels, maxEpochs, epochsPerSave):
         # train all samples in loop (multiple times)
-        pass
+        
+        numSamples = trainSet.shape[0]
+        for epoch in xrange(maxEpochs):
+            sample_idxs = np.random.permutation(numSamples)
+            for sample_idx in sample_idxs:
+                self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx,:,:])
+                
+            # save filters
+            if epoch%epochsPerSave == 0:
+                pass
+                
+        # save trained cnn
+        self._saveTrainedConfigFile()
+    
+    def _saveTrainedConfigFile(self):
+        pathToTrainedConfigFile = self.pathToConfigFile[:-4] + '-trained.ini'
+        trainedConfigFile = open(pathToTrainedConfigFile,'w')
+        
+        sections = self.config.sections()
+        for idx,layer in enumerate(self.layers):
+            if bool(re.match(self.convLayerPattern, sections[idx+2])):
+                numIn = layer.fullLayer.numIn
+                numOut = layer.fullLayer.numOut
+                
+                self.config.set(sections[idx+2], 'weights', str(layer.fullLayer.W[0:numIn-1,:].flatten('F').tolist()))
+                
+                self.config.set(sections[idx+2], 'biases', str(layer.fullLayer.W[numIn-1,:].flatten('F').tolist()))
+                
+            elif bool(re.match(self.fullLayerPattern, sections[idx+2])):
+                numIn = layer.numIn
+                numOut = layer.numOut
+                
+                self.config.set(sections[idx+2], 'weights', str(layer.W[0:numIn-1,:].flatten().tolist()))
+                
+                self.config.set(sections[idx+2], 'biases', str(layer.W[numIn-1,:].flatten().tolist()))
+ 
+        self.config.write(trainedConfigFile)
+        trainedConfigFile.close()
 
     def _tanh(self, x):
         return np.tanh(x)
