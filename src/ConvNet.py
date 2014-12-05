@@ -161,15 +161,16 @@ class ConvNet:
             for sample_idx in sample_idxs:
                 self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx,:,:])
                 
-            # save filters
+            # save trained cnn at this stage
             if epoch%epochsPerSave == 0:
-                pass
+                self._saveTrainedConfigFile(epoch)
                 
-        # save trained cnn
-        self._saveTrainedConfigFile()
+        # save final trained cnn
+        if maxEpochs%epochsPerSave != 0:
+            self._saveTrainedConfigFile(maxEpochs)
     
-    def _saveTrainedConfigFile(self):
-        pathToTrainedConfigFile = self.pathToConfigFile[:-4] + '-trained.ini'
+    def _saveTrainedConfigFile(self, numEpochs):
+        pathToTrainedConfigFile = self.pathToConfigFile[:-4] + '-trained-' + str(numEpochs) + '.ini'
         trainedConfigFile = open(pathToTrainedConfigFile,'w')
         
         sections = self.config.sections()
