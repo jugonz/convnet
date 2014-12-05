@@ -10,18 +10,18 @@ class ConvNet:
     def __init__(self, pathToConfigFile):
         self.config = cp.ConfigParser()
         self.config.read(pathToConfigFile)
-        
+
         self.layers = []
         sections = self.config.sections()
-        
+
         inputLayerPattern = 'InputLayer'
         convLayerPattern = 'ConvLayer[0-9]+'
         poolLayerPattern = 'PoolLayer[0-9]+'
         fullLayerPattern = 'FullLayer[0-9]+'
-        
+
         # check correct structure
         assert(bool(re.match(inputLayerPattern + '[' + convLayerPattern + poolLayerPattern + ']+' + '[' + fullLayerPattern + ']+', reduce(lambda x, y: x + y, a))))
-        
+
         for section in sections:
             if bool(re.match(inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
@@ -30,11 +30,11 @@ class ConvNet:
                 numFilters = int(self.config.get(section, 'numFilters'))
                 filterDim = int(self.config.get(section, 'filterDim'))
                 type = self.config.get(section, 'type')
-                
+
                 convLayer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
                 if self.config.get(section, 'weights') != 'None':
                     pass
-                
+
                 numChannels = numFilters
                 channelDim = channelDim - filterDim + 1
             elif bool(re.match(fullLayerPattern, section)):
@@ -43,13 +43,46 @@ class ConvNet:
                 pass
 
     def trainSample(self, sample, label):
+        sample = np.array(sample)
+        assert len(sample.shape) == 2, "Not a 2D image."
+        assert sample.shape[0] == sample.shape[1], "Not a square image."
         # given a config already
         # calls forward_prop and backward_prop on layers
         # forward_prop returns the result of the convolution
         # backward_prop defines how W/B are updated and does the update itself
         # backward_prop takes in a matrix of deltas from the next layer
         # backward_prop returns the deltas (a matrix) from that layer
-        pass
+        # the delta from the last layer is determined by a dictionary
+        # self.labelDict that converts labels to the index of the output
+        # neuron that is 1 (all others are 0)
+        self.learningRate = 0.5
+        self.momentum = 0.1
+
+        self.labelDict = {str(i):i for i in xrange(11)}
+        desired = np.array([0.]*10)
+        desired[self.labelDict[label]] = 1.
+
+        # input sample is (imgDim x imgDim)
+        # need to change it to be (1 x imgDim x imgDim) (1 channel input)
+        imageDim = sample.shape[0]
+        inp = np.zeros((1, imageDim, imageDim))
+        inp[0] = sample
+
+        # Now, propagate our sample through the network.
+        output = inp
+        for layer in self.layers:
+            output = layer.forward_prop(output)
+
+        # Compute the error.
+        error = self.error(output, desired)
+
+        # Propagate the error back through the network and update weights.
+        for layer in reversed(self.layers):
+            error = layer.backward_prop(error, learningRate, momentum)
+
+    # implements the derivate of the error function we're using.
+    def error(self, output, desired):
+        return np.subtract(output, desired)
 
     def trainSet(self, trainSet, labels, maxEpochs):
         # train all samples in loop (multiple times)

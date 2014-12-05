@@ -61,6 +61,6 @@ class FullyConnectedLayer(Layer):
 
         # Update our weights.
         #W_update[...] /= len(self.lastInput) # Not great for the XOR dataset.
-        self.W = np.add(self.W, W_update)
+        self.W = np.subtract(self.W, W_update)
 
         return newDelta

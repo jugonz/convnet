@@ -49,7 +49,7 @@ def FullyConnectedLayerBatchTest():
             outOut = outputLayer.forward_prop(hiddenOut)
 
             # Now, do backward propagation.
-            outDelta = np.subtract(desired[samplei], outOut)
+            outDelta = np.subtract(outOut, desired[samplei])
 
             outBack = outputLayer.backward_prop(outDelta, learningRate, momentum)
             # The output from the last back prop layer isn't useful.
