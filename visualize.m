@@ -14,7 +14,7 @@ data = load(file, 'numLayers', 'filters');
 numLayers = data.numLayers;
 filters = data.filters;
 assert(numLayers > 0, 'No layers to process!');
-visualizeNoMAT(numLayers, filters, borderWidth, outputName);
+visualizeNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputName);
 end
 
 function visualizeNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputName)
