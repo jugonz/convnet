@@ -11,7 +11,7 @@ def saveImage(image, filename):
 # Save a dictionary of names and np arrays
 # to a .mat file in the current folder.
 def saveToMatlab(filename, dictionary):
-    sio.savemat(filename, dictionary, oned_as=True)
+    sio.savemat(filename, dictionary, oned_as='column')
 
 # Return a dictionary of matlab data.
 def readFromMatlab(filename):
