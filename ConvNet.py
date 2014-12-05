@@ -1,16 +1,24 @@
 from layer import Layer
 from convolution_full import ConvolutionLayer
 from pooling import PoolingLayer
+from fully_connected_batch import FullyConnectedLayer
 import numpy as np
 import ConfigParser as cp
-import json as js
+import json
 import re
 
 class ConvNet:
     def __init__(self, pathToConfigFile):
         self.config = cp.ConfigParser()
         self.config.read(pathToConfigFile)
+<<<<<<< Updated upstream
 
+=======
+        
+        self.nonlinearFunc = {'tanh': self._tanh, 'sigmoid': self._sigmoid}
+        self.nonlinearDeriv = {'tanh': self._tanhDeriv, 'sigmoid': self._sigmoidDeriv}
+        
+>>>>>>> Stashed changes
         self.layers = []
         sections = self.config.sections()
 
@@ -20,27 +28,81 @@ class ConvNet:
         fullLayerPattern = 'FullLayer[0-9]+'
 
         # check correct structure
+<<<<<<< Updated upstream
         assert(bool(re.match(inputLayerPattern + '[' + convLayerPattern + poolLayerPattern + ']+' + '[' + fullLayerPattern + ']+', reduce(lambda x, y: x + y, a))))
 
         for section in sections:
+=======
+        assert(bool(re.match(inputLayerPattern + '(' + convLayerPattern + poolLayerPattern + ')+' + '(' + fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections))))
+        
+        for idx,section in enumerate(sections):
+>>>>>>> Stashed changes
             if bool(re.match(inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
                 channelDim = int(self.config.get(section, 'imgSize'))
+                
             elif bool(re.match(convLayerPattern, section)):
                 numFilters = int(self.config.get(section, 'numFilters'))
                 filterDim = int(self.config.get(section, 'filterDim'))
                 type = self.config.get(section, 'type')
+<<<<<<< Updated upstream
 
                 convLayer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
                 if self.config.get(section, 'weights') != 'None':
                     pass
 
+=======
+                
+                layer = ConvolutionLayer(numChannels, numFilters, filterDim, type)
+                if self.config.get(section, 'weights') != 'None':
+                    weights = json.loads(self.config.get(section, 'weights'))
+                    weights = np.reshape(weights, (numChannels, filterDim, filterDim))
+                    
+                    biases = json.loads(self.config.get(section, 'biases'))
+                    biases = np.array(biases)
+                    
+                    layer.init_weights(weights, biases)
+                    
+                self.layers.append(layer)
+                
+>>>>>>> Stashed changes
                 numChannels = numFilters
                 channelDim = channelDim - filterDim + 1
-            elif bool(re.match(fullLayerPattern, section)):
-                pass
+                
+            elif bool(re.match(poolLayerPattern, section)):
+                winSize = int(self.config.get(section, 'winSize'))
+                type = self.config.get(section, 'type')
+                
+                if bool(re.match(convLayerPattern, sections[idx+1])):
+                    nextLayer = 'conv'
+                else:
+                    nextLayer = 'full'
+                    
+                layer = PoolingLayer(numChannels, channelDim, winSize, nextLayer, type)
+                
+                self.layers.append(layer)
+                
+                channelDim = channelDim/winSize
+                numOut = (channelDim**2*numChannels)+1
+                
+                
             else:
-                pass
+                numIn = numOut
+                numOut = int(self.config.get(section, 'numOut'))
+                type = self.config.get(section, 'type')
+                
+                layer = FullyConnectedLayer(numIn, numOut, self.nonlinearFunc[type], self.nonlinearDeriv[type])
+                
+                if self.config.get(section, 'weights') != 'None':
+                    weights = json.loads(self.config.get(section, 'weights'))
+                    weights = np.array(weights)
+                    
+                    biases = json.loads(self.config.get(section, 'biases'))
+                    biases = np.array(biases)
+                    
+                    layer.init_weights(weights, biases)
+                    
+                self.layers.append(layer)
 
     def trainSample(self, sample, label):
         sample = np.array(sample)
@@ -88,4 +150,14 @@ class ConvNet:
         # train all samples in loop (multiple times)
         pass
 
-    # define nonlinear funcs and derivatives here
+    def _tanh(self, x):
+        return np.tanh(x)
+        
+    def _sigmoid(self, x):
+        pass
+        
+    def _tanhDeriv(self, x):
+        return 1.0 - x**2
+        
+    def _sigmoidDeriv(self, x):
+        pass
