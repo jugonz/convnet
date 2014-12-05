@@ -159,7 +159,7 @@ class ConvNet:
         for epoch in xrange(maxEpochs):
             sample_idxs = np.random.permutation(numSamples)
             for sample_idx in sample_idxs:
-                self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx,:,:])
+                self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx])
                 
             # save trained cnn at this stage
             if epoch%epochsPerSave == 0:
