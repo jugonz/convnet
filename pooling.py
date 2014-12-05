@@ -54,13 +54,13 @@ class PoolingLayer(Layer):
             if self.nextLayer == 'conv':
                 return pooled
             else:
-                return pooled.flatten()
+                return np.append(pooled.flatten(), 1)
         else:
             self.lastOutput = pooled
             if self.nextLayer == 'conv':
                 return pooled
             else:
-                return pooled.flatten()
+                return np.append(pooled.flatten(), 1)
 
     def backward_prop(self, error, learningRate=0, momentum=0):
         if self.nextLayer == 'full':
