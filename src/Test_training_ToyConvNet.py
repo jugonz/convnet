@@ -5,7 +5,7 @@ import unittest
 
 class ToyConvNetTrainingTest(unittest.TestCase):
 	def setUp(self):
-		configPath = "ToyConvNetConfig.ini"
+		configPath = "MultipleConvPoolLayersConfig.ini"
 		imagePathPrefix = "../test_imgs/lines/"
 		imagePaths = ["horiz_line0.png", "horiz_line1.png", "horiz_line2.png",
 			"vert_line0.png", "vert_line1.png", "vert_line2.png"]
@@ -28,20 +28,20 @@ class ToyConvNetTrainingTest(unittest.TestCase):
 
 		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
 
-	def testTrain6Images(self):
-		data = self.images
-		maxEpochs = 1000
-		epochsPerSave = 10001 # no saving in this test either
+#	def testTrain6Images(self):
+#		data = self.images
+#		maxEpochs = 1000
+#		epochsPerSave = 10001 # no saving in this test either
 
-		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+#		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
 
-	def testTrain6ImagesAndTest(self):
-		data = self.images
-		maxEpochs = 1000
-		epochsPerSave = 10001 # no saving in this test either :)
+#	def testTrain6ImagesAndTest(self):
+#		data = self.images
+#		maxEpochs = 1000
+#		epochsPerSave = 10001 # no saving in this test either :)
 
-		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
-		self.net.testSet(data, self.labels)
+#		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+#		self.net.testSet(data, self.labels)
 
 
 if __name__ == "__main__":

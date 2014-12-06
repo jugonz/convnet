@@ -13,7 +13,7 @@ class ConvolutionLayer(Layer):
         self.nonlinearDeriv = {'tanh': self._tanhDeriv, 'sigmoid': self._sigmoidDeriv}
 
         self.fullLayer = FullyConnectedLayer((self.filterDim**2)*self.numChannels+1,\
-         self.numFilters, self.nonlinearFunc[self.type], self.nonlinearDeriv[self.type])
+        self.numFilters, self.nonlinearFunc[self.type], self.nonlinearDeriv[self.type])
 
     def init_weights(self, weights, bias):
         # weights.shape = (k, c, w_k, w_k)
@@ -51,13 +51,17 @@ class ConvolutionLayer(Layer):
 
     def backward_prop(self, error, learningRate, momentum):
         error = self._transformInputError(error)
+        print error.shape
         newDelta = self.fullLayer.backward_prop(error, learningRate, momentum)
+        print error.shape
         return self._transformOutputError(newDelta)
 
     def _transformInput(self, inp):
         # inp.shape = (c, w_img, w_img)
 
         # check same number of channels
+        #print inp.shape
+        #print self.numChannels
         assert(inp.shape[0] == self.numChannels)
 
         # check square image
@@ -95,31 +99,29 @@ class ConvolutionLayer(Layer):
         return transOutput
 
     def _transformInputError(self, inpError):
-        # inpError.shape = (e, k, w_img - w_k +1, w_img - w_k + 1)
+        # inpError.shape = (k, w_img - w_k +1, w_img - w_k + 1)
 
         # check same number of filters
-        assert(inpError.shape[1] == self.numFilters)
+        assert(inpError.shape[0] == self.numFilters)
 
         # check square image
-        assert(inpError.shape[2] == inpError.shape[3])
+        assert(inpError.shape[1] == inpError.shape[2])
 
-        numOut = inpError.shape[0]
-        imgSize = inpError.shape[2]
+        imgSize = inpError.shape[1]
 
-        transInputError = np.zeros((numOut, imgSize**2, self.numFilters))
+        transInputError = np.zeros((imgSize**2, self.numFilters))
 
-        for e in xrange(numOut):
-            for j in xrange(imgSize):
-                for i in xrange(imgSize):
-                    transInputError[e,j*imgSize+i,:] = inpError[e,:,j,i]
+        for j in xrange(imgSize):
+            for i in xrange(imgSize):
+                transInputError[j*imgSize+i,:] = inpError[:,j,i]
 
         return transInputError
 
     def _transformOutputError(self, outError):
-        # outError.shape = (w_img^2, c)
-
+        # outError.shape = (w_img^2, 1+w_k^2)
+        print outError.shape
         # check same number of channels
-        assert(outError.shape[1] == self.numChannels)
+        #assert(outError.shape[1] == 1+self.filterDim**2)
 
         # check square image
         assert(np.sqrt(outError.shape[0])%int(np.sqrt(outError.shape[0])) == 0)

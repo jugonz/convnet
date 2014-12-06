@@ -35,7 +35,7 @@ class ConvNet:
         # check correct structure
         assert(bool(re.match(self.inputLayerPattern + '(' + self.convLayerPattern + self.poolLayerPattern +\
              ')+' + '(' + self.fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections[1:]))))
-
+        
         for idx, section in enumerate(sections[1:]):
             if bool(re.match(self.inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
@@ -64,7 +64,7 @@ class ConvNet:
                 winSize = int(self.config.get(section, 'winSize'))
                 type = self.config.get(section, 'type')
 
-                if bool(re.match(self.convLayerPattern, sections[idx+1])):
+                if bool(re.match(self.convLayerPattern, sections[idx+2])):
                     nextLayer = 'conv'
                 else:
                     nextLayer = 'full'
@@ -167,6 +167,7 @@ class ConvNet:
 
         numSamples = trainSet.shape[0]
         for epoch in xrange(maxEpochs):
+            print "Epoch: ", epoch
             sample_idxs = np.random.permutation(numSamples)
             for sample_idx in sample_idxs:
                 self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx])
@@ -183,17 +184,18 @@ class ConvNet:
         # Propagate our sample through each layer of the network.
         output = inp
         for layer in self.layers:
-
+            print "FLayer: ", layer
             output = layer.forward_prop(output)
+            print output.shape
         return output
 
     def backward_prop(self, error):
         # Propagate error through the network.
         i = 0
         for layer in reversed(self.layers):
-            print "i: ", i
-            i += 1
+            print "BLayer: ", layer
             error = layer.backward_prop(error, self.learningRate, self.momentum)
+            print error.shape
 
     # implements the derivate of the error function we're using.
     def _error(self, output, desired):

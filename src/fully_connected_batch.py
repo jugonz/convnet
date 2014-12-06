@@ -40,7 +40,8 @@ class FullyConnectedLayer(Layer):
         assert(self.lastInput != None)
         outputDeriv = self.nonlinearDeriv(self.lastActivation)
         derivErrorProd = outputDeriv * error # First part of output derivative.
-
+        #print outputDeriv.shape
+        #print error.shape
         W_update = np.zeros((self.numIn, self.numOut))
 
         # Compute weight updates (this isn't a matrix multiplication, sadly).
@@ -49,6 +50,7 @@ class FullyConnectedLayer(Layer):
             for i in xrange(self.numIn):
                 for j in xrange(self.numOut):
                     update = derivErrorProd[inpIt][j] * inp[i]
+                    #print derivErrorProd.shape
                     W_update[i][j] += (learningRate * update) +\
                         (momentum * self.lastWupdate[i][j])
                     self.lastWupdate[i][j] = update
