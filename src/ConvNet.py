@@ -170,7 +170,7 @@ class ConvNet:
         # train all samples in loop (multiple times)
 
         numSamples = trainSet.shape[0]
-        for epoch in xrange(maxEpochs):
+        for epoch in xrange(1, maxEpochs + 1):
             sample_idxs = np.random.permutation(numSamples)
             for sample_idx in sample_idxs:
                 self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx])

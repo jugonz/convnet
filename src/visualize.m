@@ -7,8 +7,8 @@ function visualize(file, outputName)
 %   because we have to store matrices of different
 %   dimensions inside one structure.
 % outputName is the prefix of the image files to be output.
-borderWidth = 4;
-magnifyRatio = 15; % Usually we need to upscale the output to be visible.
+borderWidth = 2;
+magnifyRatio = 1; % Usually we need to upscale the output to be visible.
 
 data = load(file, 'numLayers', 'filters');
 numLayers = data.numLayers;
@@ -21,22 +21,33 @@ function visualizeNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputNam
 % For each layer...
 for i=1:numLayers
     layer = filters{i};
+    % Resize the image for better visibility.
+    layerResized = zeros(size(layer, 1), magnifyRatio * size(layer, 2), ...
+        magnifyRatio * size(layer, 3));
+    for j=1:size(layer, 1)
+        square = squeeze(layer(j, :, :));
+        resized = imresize(square, magnifyRatio);
+        layerResized(j, :, :) = resized;
+    end
+    layer = layerResized;
+    
+    % Keep track of other paramaters.
     numFilters = size(layer, 1);
     filterDim = size(layer, 2);
-    border = zeros(filterDim, borderWidth);
+    border = zeros(filterDim, borderWidth, 3); % 3 for RGB
+    border(:, :, 3) = ones(filterDim, borderWidth);
     
     % For each filter...
     % add to our final image plus a border.
     newIm = [];
     for j=1:numFilters
-        newIm = [newIm squeeze(layer(j, :, :))];
+        % Make this image greyscale in RGB representation
+        newIm = [newIm repmat(squeeze(layer(j, :, :)), [1 1 3])];
         if j ~= numFilters
             newIm = [newIm border];
         end
     end
     
-    % Resize the image for better visibility.
-    newIm = imresize(newIm, magnifyRatio);
     % Save the image to PNG.
     imwrite(newIm, strcat(outputName, '_layer_', num2str(i), '.png'));
 end
