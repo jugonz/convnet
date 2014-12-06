@@ -51,17 +51,13 @@ class ConvolutionLayer(Layer):
 
     def backward_prop(self, error, learningRate, momentum):
         error = self._transformInputError(error)
-        print error.shape
         newDelta = self.fullLayer.backward_prop(error, learningRate, momentum)
-        print error.shape
         return self._transformOutputError(newDelta)
 
     def _transformInput(self, inp):
         # inp.shape = (c, w_img, w_img)
 
         # check same number of channels
-        #print inp.shape
-        #print self.numChannels
         assert(inp.shape[0] == self.numChannels)
 
         # check square image
@@ -118,21 +114,23 @@ class ConvolutionLayer(Layer):
         return transInputError
 
     def _transformOutputError(self, outError):
-        # outError.shape = (w_img^2, 1+w_k^2)
-        print outError.shape
-        # check same number of channels
-        #assert(outError.shape[1] == 1+self.filterDim**2)
+        # outError.shape = ((w_img-w_k+1)^2, c*w_k^2+1)
 
-        # check square image
+        # check perfect square
         assert(np.sqrt(outError.shape[0])%int(np.sqrt(outError.shape[0])) == 0)
+        
+        # check same number inputs
+        assert(outError.shape[1] == self.numChannels*(self.filterDim**2)+1)
 
-        imgSize = int(np.sqrt(outError.shape[0]))
+        imgSize = int(np.sqrt(outError.shape[0])) + self.filterDim - 1
+        convSize = imgSize - self.filterDim + 1
+        numInputs = (self.filterDim**2)*self.numChannels+1
 
         transOutputError = np.zeros((self.numChannels, imgSize, imgSize))
 
-        for j in xrange(imgSize):
-            for i in xrange(imgSize):
-                transOutputError[:,j,i] = outError[j*imgSize+i,:]
+        for j in xrange(convSize):
+            for i in xrange(convSize):
+                transOutputError[:,j:j+self.filterDim,i:i+self.filterDim] = np.add(transOutputError[:,j:j+self.filterDim,i:i+self.filterDim], outError[j*convSize+i,0:numInputs-1].reshape((self.numChannels, self.filterDim, self.filterDim)))
 
         return transOutputError
 

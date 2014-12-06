@@ -184,18 +184,13 @@ class ConvNet:
         # Propagate our sample through each layer of the network.
         output = inp
         for layer in self.layers:
-            print "FLayer: ", layer
             output = layer.forward_prop(output)
-            print output.shape
         return output
 
     def backward_prop(self, error):
         # Propagate error through the network.
-        i = 0
         for layer in reversed(self.layers):
-            print "BLayer: ", layer
             error = layer.backward_prop(error, self.learningRate, self.momentum)
-            print error.shape
 
     # implements the derivate of the error function we're using.
     def _error(self, output, desired):
