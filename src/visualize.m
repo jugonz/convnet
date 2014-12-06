@@ -7,7 +7,7 @@ function visualize(file, outputName)
 %   because we have to store matrices of different
 %   dimensions inside one structure.
 % outputName is the prefix of the image files to be output.
-borderWidth = 16;
+borderWidth = 4;
 magnifyRatio = 15; % Usually we need to upscale the output to be visible.
 
 data = load(file, 'numLayers', 'filters');
@@ -29,7 +29,7 @@ for i=1:numLayers
     % add to our final image plus a border.
     newIm = [];
     for j=1:numFilters
-        newIm = [newIm layer(:, :, j)];
+        newIm = [newIm squeeze(layer(j, :, :))];
         if j ~= numFilters
             newIm = [newIm border];
         end

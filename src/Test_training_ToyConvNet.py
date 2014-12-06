@@ -26,22 +26,32 @@ class ToyConvNetTrainingTest(unittest.TestCase):
 		maxEpochs = 100
 		epochsPerSave = 101 # no saving in this test
 
-		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+		self.net.trainSet(data, np.array([self.labels[0]]), maxEpochs, epochsPerSave)
+		self.net.testSet(data, np.array([self.labels[0]]))
 
-#	def testTrain6Images(self):
-#		data = self.images
-#		maxEpochs = 1000
-#		epochsPerSave = 10001 # no saving in this test either
+	# def testTrain6Images(self):
+	# 	data = self.images
+	# 	maxEpochs = 1000
+	# 	epochsPerSave = 10001 # no saving in this test either
 
-#		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+	# 	self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
 
-#	def testTrain6ImagesAndTest(self):
-#		data = self.images
-#		maxEpochs = 1000
-#		epochsPerSave = 10001 # no saving in this test either :)
+	# def testTrain6ImagesAndTest(self):
+	# 	data = self.images
+	# 	maxEpochs = 500
+	# 	epochsPerSave = 500 # save at the end of this test
 
-#		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
-#		self.net.testSet(data, self.labels)
+	# 	self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+	# 	self.net.testSet(data, self.labels)
+	# 	self.net.saveFilters(maxEpochs) # for visualization
+
+	# To run this test, change the configPath in setUp() to point to a
+	# pretrained ConvNet config file.
+	# def testPrintTrainedFilters(self):
+	# 	data = self.images
+
+	# 	self.net.testSet(data, self.labels)
+	# 	self.net.saveFilters(0)
 
 
 if __name__ == "__main__":

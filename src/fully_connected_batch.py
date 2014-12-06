@@ -8,7 +8,7 @@ class FullyConnectedLayer(Layer):
     def __init__(self, numIn, numOut, nonlinear, nonlinearDeriv):
         self.numIn = numIn
         self.numOut = numOut
-        self.W = np.random.randn(self.numIn, self.numOut)
+        self.W = 0.1 * np.random.randn(self.numIn, self.numOut)
         self.nonlinearFunc = nonlinear
         self.nonlinearDeriv = nonlinearDeriv
         self.lastInput = None

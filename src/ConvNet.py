@@ -24,6 +24,10 @@ class ConvNet:
         for idx, label in enumerate(self.config.get('Parameters', 'labelSet').split(' ')):
             self.labelSet[label] = idx
 
+        # need reversed labelSet for determining labels of test samples
+        # that were run through forward_prop()
+        self.labelSetReversed = {v: k for k, v in self.labelSet.items()}
+
         self.learningRate = float(self.config.get('Parameters', 'learningRate'))
         self.momentum = float(self.config.get('Parameters', 'momentum'))
 
@@ -35,7 +39,7 @@ class ConvNet:
         # check correct structure
         assert(bool(re.match(self.inputLayerPattern + '(' + self.convLayerPattern + self.poolLayerPattern +\
              ')+' + '(' + self.fullLayerPattern + ')+', reduce(lambda x, y: x + y, sections[1:]))))
-        
+
         for idx, section in enumerate(sections[1:]):
             if bool(re.match(self.inputLayerPattern, section)):
                 numChannels = int(self.config.get(section, 'numChannels'))
@@ -120,8 +124,8 @@ class ConvNet:
 
             # We have a vector of outputs.
             # Get the index of the max score of this output.
-            outputIndex = outputVector.argmax()
-            outputLabel = self.labelSet[outputIndex]
+            outputIndex = outputVector[0].argmax()
+            outputLabel = self.labelSetReversed[outputIndex]
 
             # Save the number of correct labels.
             if outputLabel == expectedOutputLabel:
@@ -157,7 +161,7 @@ class ConvNet:
         output = self.forward_prop(inp)
 
         # Compute the error.
-        error = self._error(output, desired)
+        error = self._errorDeriv(output, desired)
 
         # Propagate the error back through the network and update weights.
         self.backward_prop(error)
@@ -167,7 +171,6 @@ class ConvNet:
 
         numSamples = trainSet.shape[0]
         for epoch in xrange(maxEpochs):
-            print "Epoch: ", epoch
             sample_idxs = np.random.permutation(numSamples)
             for sample_idx in sample_idxs:
                 self.trainSample(trainSet[sample_idx,:,:], labels[sample_idx])
@@ -176,6 +179,12 @@ class ConvNet:
             if epoch%epochsPerSave == 0:
                 self._saveTrainedConfigFile(epoch)
 
+            desired = np.array([0.]*len(self.labelSet))
+            desired[self.labelSet[labels[sample_idxs[-1]]]] = 1.
+            desired = np.array([desired])
+
+            if epoch % 50 == 0:
+                print "error at epoch %d: %0.3f" % (epoch, self._error(self.layers[-1].lastActivation, desired))
         # save final trained cnn
         if maxEpochs%epochsPerSave != 0:
             self._saveTrainedConfigFile(maxEpochs)
@@ -192,22 +201,42 @@ class ConvNet:
         for layer in reversed(self.layers):
             error = layer.backward_prop(error, self.learningRate, self.momentum)
 
-    # implements the derivate of the error function we're using.
     def _error(self, output, desired):
+        val = 0.5 * np.subtract(desired, output) **2
+        return np.sum(val)
+
+    # implements the derivate of the error function we're using.
+    def _errorDeriv(self, output, desired):
         return np.subtract(output, desired)
 
     def saveFilters(self, epochNum):
         # save all the weight matrices to matlab cell array
-        numLayers = len(self.layers)
-        valuesToSave = {"numLayers" : numLayers} # so matlab can easily know size of array
+        valuesToSave = {}
 
-        filters = np.zeros((numLayers, ), dtype = np.object) # object == cell array
-        for i in xrange(numLayers):
-            filters[i] = self.layers[i].W
+        numConvolutionalLayers = 0
+        for layer in self.layers:
+            if isinstance(layer, ConvolutionLayer):
+                numConvolutionalLayers += 1
+
+        # so matlab can easily know size of array
+        valuesToSave["numLayers"] = numConvolutionalLayers
+
+        filters = np.zeros((numConvolutionalLayers, ), dtype = np.object) # object == cell array
+
+        i = 0
+        for layer in self.layers:
+            if isinstance(layer, ConvolutionLayer):
+                numInputs = layer.fullLayer.W.shape[0]
+                weightsNoBias = layer.fullLayer.W[0:numInputs-1,:]
+                numChannels = layer.numChannels
+                numFilters = layer.numFilters
+                filterDim = layer.filterDim
+                filters[i] = np.reshape(weightsNoBias.T, (numChannels * numFilters, filterDim, filterDim))
+                i += 1
         valuesToSave["filters"] = filters
 
         # write to disk
-        misc.saveToMatlab('filters-' + str(epochNum), valuesToSave)
+        misc.saveToMatlab("filters-" + str(epochNum), valuesToSave)
 
     def _saveTrainedConfigFile(self, numEpochs):
         pathToTrainedConfigFile = self.pathToConfigFile[:-4] + '-trained-' + str(numEpochs) + '.ini'
