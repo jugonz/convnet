@@ -23,11 +23,26 @@ class ToyConvNetTrainingTest(unittest.TestCase):
 	def testTrain1Image(self):
 		data = np.zeros((1, self.imageDim, self.imageDim))
 		data[0] = np.array([self.images[0]])
-
 		maxEpochs = 100
-		epochsPerSave = 1000 # no saving in this test
+		epochsPerSave = 101 # no saving in this test
 
 		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+
+	def testTrain6Images(self):
+		data = self.images
+		maxEpochs = 1000
+		epochsPerSave = 10001 # no saving in this test either
+
+		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+
+	def testTrain6ImagesAndTest(self):
+		data = self.images
+		maxEpochs = 1000
+		epochsPerSave = 10001 # no saving in this test either :)
+
+		self.net.trainSet(data, self.labels, maxEpochs, epochsPerSave)
+		self.net.testSet(data, self.labels)
+
 
 if __name__ == "__main__":
     unittest.main()

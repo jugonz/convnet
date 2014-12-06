@@ -106,7 +106,31 @@ class ConvNet:
         inp = self._transformInput(sample.shape[0], sample)
 
         # Now, propagate our sample through the network.
-        output = self.forward_prop(inp)
+        return self.forward_prop(inp)
+
+    # on a pre-trained network, get the outputs for a test set
+    def testSet(self, testSet, labels):
+        assert len(testSet) == len(labels), "Need 1 label per test image"
+
+        numCorrect = 0
+        for i in xrange(len(testSet)):
+            # Propagate our sample through the network.
+            expectedOutputLabel = labels[i]
+            outputVector = self.testSample(testSet[i], labels[i])
+
+            # We have a vector of outputs.
+            # Get the index of the max score of this output.
+            outputIndex = outputVector.argmax()
+            outputLabel = self.labelSet[outputIndex]
+
+            # Save the number of correct labels.
+            if outputLabel == expectedOutputLabel:
+                numCorrect += 1
+
+        # Report accuracy on this dataset.
+        accuracy = numCorrect / float(len(testSet))
+        print "Accuracy on this test set was: ", accuracy
+
 
     def trainSample(self, sample, label):
         assert len(sample.shape) == 2, "Not a 2D image."
@@ -159,12 +183,16 @@ class ConvNet:
         # Propagate our sample through each layer of the network.
         output = inp
         for layer in self.layers:
+
             output = layer.forward_prop(output)
         return output
 
     def backward_prop(self, error):
         # Propagate error through the network.
+        i = 0
         for layer in reversed(self.layers):
+            print "i: ", i
+            i += 1
             error = layer.backward_prop(error, self.learningRate, self.momentum)
 
     # implements the derivate of the error function we're using.
