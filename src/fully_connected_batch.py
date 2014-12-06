@@ -54,10 +54,7 @@ class FullyConnectedLayer(Layer):
                     self.lastWupdate[i][j] = update
 
         # Finish computing the output derivative.
-        newDelta = np.tile(self.W, self.lastInput.shape[1] / self.W.shape[0]).T
-        for i in xrange(len(self.lastInput)):
-            for j in xrange(len(newDelta[i])):
-                newDelta[i][j] *= derivErrorProd[i][0]
+        newDelta = np.dot(derivErrorProd, self.W.T)
 
         # Update our weights.
         #W_update[...] /= len(self.lastInput) # Not great for the XOR dataset.
