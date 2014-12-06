@@ -49,37 +49,35 @@ class PoolingLayer(Layer):
                         pooled[m,i,j] = pool
 
         if self.type == 'max':
-            self.lastOutput = pooled
+            self.lastOutput = pooled 
             self.lastPooledLoc = pooledLoc
             if self.nextLayer == 'conv':
                 return pooled
             else:
-                return np.array([np.append(pooled.flatten(), 1)])
-
+                return np.append(pooled.flatten(), 1)
         else:
             self.lastOutput = pooled
             if self.nextLayer == 'conv':
                 return pooled
             else:
-                return np.array([np.append(pooled.flatten(), 1)])
+                return np.append(pooled.flatten(), 1)
 
     def backward_prop(self, error, learningRate=0, momentum=0):
         if self.nextLayer == 'full':
             # check can properly reshape
-            assert(error.shape[1] == 1+self.numMaps*(self.mapSize/self.winSize)**2)
+            assert(error.shape[0] == 1+self.numMaps*(self.mapSize/self.winSize)**2)
 
-            numOut = error.shape[0]
-            error = error[:,0:error.shape[1]-1]
-            error = error.reshape((numOut, self.numMaps, self.mapSize/self.winSize, self.mapSize/self.winSize))
+            error = error[0:error.shape[0]-1]
+            error = error.reshape((self.numMaps, self.mapSize/self.winSize, self.mapSize/self.winSize))
 
         # check square maps
-        assert(error.shape[2] == error.shape[3])
+        assert(error.shape[1] == error.shape[2])
         # check error size corresponds to winSize
-        assert(error.shape[2] == self.mapSize/self.winSize)
+        assert(error.shape[1] == self.mapSize/self.winSize)
         # check have had output
         assert(self.lastOutput != None)
 
-        newDelta = np.zeros((error.shape[0],error.shape[1],self.mapSize,self.mapSize))
+        newDelta = np.zeros((error.shape[0],self.mapSize,self.mapSize))
 
         if self.type == 'max':
             pooled = self.lastOutput
@@ -88,20 +86,18 @@ class PoolingLayer(Layer):
             if self.nextLayer == 'full':
                 pooled = pooled.reshape((pooledLoc.shape[0], pooledLoc.shape[1], pooledLoc.shape[2]))
 
-            for e in xrange(error.shape[0]):
-                for m in xrange(pooledLoc.shape[0]):
-                    for i in xrange(pooledLoc.shape[1]):
-                        for j in xrange(pooledLoc.shape[2]):
-                            x = pooledLoc[m,i,j,0]
-                            y = pooledLoc[m,i,j,1]
-                            newDelta[e,m,x,y] = error[e,m,i,j]
+            for m in xrange(pooledLoc.shape[0]):
+                for i in xrange(pooledLoc.shape[1]):
+                    for j in xrange(pooledLoc.shape[2]):
+                        x = pooledLoc[m,i,j,0]
+                        y = pooledLoc[m,i,j,1]
+                        newDelta[m,x,y] = error[m,i,j]
         else:
-            for e in xrange(error.shape[0]):
-                for m in xrange(error.shape[1]):
-                    for i in xrange(error.shape[2]):
-                        for j in xrange(error.shape[3]):
-                            newDelta[e, m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize]\
-                             = error[e,m,i,j]*np.ones((self.winSize,self.winSize))/self.winSize**2
+            for m in xrange(error.shape[0]):
+                for i in xrange(error.shape[1]):
+                    for j in xrange(error.shape[2]):
+                        newDelta[m, i*self.winSize:(i+1)*self.winSize, j*self.winSize:(j+1)*self.winSize]\
+                         = error[m,i,j]*np.ones((self.winSize,self.winSize))/self.winSize**2
 
         return newDelta
 
