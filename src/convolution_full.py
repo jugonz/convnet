@@ -95,21 +95,23 @@ class ConvolutionLayer(Layer):
         return transOutput
 
     def _transformInputError(self, inpError):
-        # inpError.shape = (k, w_img - w_k +1, w_img - w_k + 1)
+        # inpError.shape = (e, k, w_img - w_k +1, w_img - w_k + 1)
 
         # check same number of filters
-        assert(inpError.shape[0] == self.numFilters)
+        assert(inpError.shape[1] == self.numFilters)
 
         # check square image
-        assert(inpError.shape[1] == inpError.shape[2])
+        assert(inpError.shape[2] == inpError.shape[3])
 
-        imgSize = inpError.shape[1]
+        numOut = inpError.shape[0]
+        imgSize = inpError.shape[2]
 
-        transInputError = np.zeros((imgSize**2, self.numFilters))
+        transInputError = np.zeros((numOut, imgSize**2, self.numFilters))
 
-        for j in xrange(imgSize):
-            for i in xrange(imgSize):
-                transInputError[j*imgSize+i,:] = inpError[:,j,i]
+        for e in xrange(numOut):
+            for j in xrange(imgSize):
+                for i in xrange(imgSize):
+                    transInputError[e,j*imgSize+i,:] = inpError[e,:,j,i]
 
         return transInputError
 
