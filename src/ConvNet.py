@@ -24,8 +24,8 @@ class ConvNet:
         for idx, label in enumerate(self.config.get('Parameters', 'labelSet').split(' ')):
             self.labelSet[label] = idx
 
-        self.learningRate = int(self.config.get('Parameters', 'learningRate'))
-        self.momentum = int(self.config.get('Parameters', 'momentum'))
+        self.learningRate = float(self.config.get('Parameters', 'learningRate'))
+        self.momentum = float(self.config.get('Parameters', 'momentum'))
 
         self.inputLayerPattern = 'InputLayer'
         self.convLayerPattern = 'ConvLayer[0-9]+'
@@ -94,7 +94,7 @@ class ConvNet:
 
                 self.layers.append(layer)
 
-    def _transformInput(self, imageDim, input):
+    def _transformInput(self, imageDim, sample):
         # input sample is (imgDim x imgDim)
         # need to change it to be (1 x imgDim x imgDim) for 1 channel input
         inp = np.zeros((1, imageDim, imageDim))
@@ -122,8 +122,9 @@ class ConvNet:
         # the delta from the last layer is determined by a dictionary
         # self.labelSet that converts labels to the index of the output
         # neuron that is 1 (all others are 0)
-        desired = np.array([0.]*10)
+        desired = np.array([0.]*len(self.labelSet))
         desired[self.labelSet[label]] = 1.
+        desired = np.array([desired])
 
         # First, transform our input to go through the input layer.
         inp = self._transformInput(sample.shape[0], sample)
@@ -136,22 +137,6 @@ class ConvNet:
 
         # Propagate the error back through the network and update weights.
         self.backward_prop(error)
-
-    def forward_prop(self, inp):
-        # Propagate our sample through each layer of the network.
-        output = inp
-        for layer in self.layers:
-            output = layer.forward_prop(output)
-        return output
-
-    def backward_prop(self, error):
-        # Propagate error through the network.
-        for layer in reversed(self.layers):
-            error = layer.backward_prop(error, learningRate, momentum)
-
-    # implements the derivate of the error function we're using.
-    def _error(self, output, desired):
-        return np.subtract(output, desired)
 
     def trainSet(self, trainSet, labels, maxEpochs, epochsPerSave):
         # train all samples in loop (multiple times)
@@ -169,6 +154,22 @@ class ConvNet:
         # save final trained cnn
         if maxEpochs%epochsPerSave != 0:
             self._saveTrainedConfigFile(maxEpochs)
+
+    def forward_prop(self, inp):
+        # Propagate our sample through each layer of the network.
+        output = inp
+        for layer in self.layers:
+            output = layer.forward_prop(output)
+        return output
+
+    def backward_prop(self, error):
+        # Propagate error through the network.
+        for layer in reversed(self.layers):
+            error = layer.backward_prop(error, self.learningRate, self.momentum)
+
+    # implements the derivate of the error function we're using.
+    def _error(self, output, desired):
+        return np.subtract(output, desired)
 
     def saveFilters(self, epochNum):
         # save all the weight matrices to matlab cell array

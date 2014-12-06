@@ -41,7 +41,7 @@ class FullyConnectedLayer(Layer):
         outputDeriv = self.nonlinearDeriv(self.lastActivation)
         derivErrorProd = outputDeriv * error # First part of output derivative.
 
-        W_update = np.zeros([self.numIn, self.numOut])
+        W_update = np.zeros((self.numIn, self.numOut))
 
         # Compute weight updates (this isn't a matrix multiplication, sadly).
         for inpIt in xrange(len(self.lastInput)):
@@ -54,7 +54,7 @@ class FullyConnectedLayer(Layer):
                     self.lastWupdate[i][j] = update
 
         # Finish computing the output derivative.
-        newDelta = np.tile(self.W, len(self.lastInput)).T
+        newDelta = np.tile(self.W, self.lastInput.shape[1] / self.W.shape[0]).T
         for i in xrange(len(self.lastInput)):
             for j in xrange(len(newDelta[i])):
                 newDelta[i][j] *= derivErrorProd[i][0]

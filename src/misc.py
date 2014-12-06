@@ -3,7 +3,7 @@ import scipy.misc as smisc
 import scipy.io as sio
 
 def loadImage(filePath):
-    return smisc.imread(filePath)
+    return smisc.imread(filePath, flatten = True)
 
 def saveImage(image, filename):
     smisc.imsave(filename, image)
