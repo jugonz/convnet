@@ -13,7 +13,7 @@ class MNISTConvNetTrainingTest(unittest.TestCase):
 		self.imagesOf3s = extract_mnist.getMNISTTrainingSamplesNum(3)
 		self.imagesOf7s = extract_mnist.getMNISTTrainingSamplesNum(7)
 
-	def testTrain2sAnd3s(self):
+	def testTrain2sAnd3And7s(self):
 		numImages = 50 # number of images of each category
 
 		# combine two data sets

@@ -15,6 +15,7 @@ class ConvolutionLayer(Layer):
         self.fullLayer = FullyConnectedLayer((self.filterDim**2)*self.numChannels+1,\
         self.numFilters, self.nonlinearFunc[self.type], self.nonlinearDeriv[self.type])
 
+        self.lastOutput = None # cached output
     def init_weights(self, weights, bias):
         # weights.shape = (k, c, w_k, w_k)
 
@@ -47,7 +48,9 @@ class ConvolutionLayer(Layer):
     def forward_prop(self, inp):
         inp = self._transformInput(inp)
         out = self.fullLayer.forward_prop(inp)
-        return self._transformOutput(out)
+        self.lastOutput = self._transformOutput(out)
+
+        return self.lastOutput
 
     def backward_prop(self, error, learningRate, momentum):
         error = self._transformInputError(error)
@@ -118,7 +121,7 @@ class ConvolutionLayer(Layer):
 
         # check perfect square
         assert(np.sqrt(outError.shape[0])%int(np.sqrt(outError.shape[0])) == 0)
-        
+
         # check same number inputs
         assert(outError.shape[1] == self.numChannels*(self.filterDim**2)+1)
 

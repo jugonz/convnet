@@ -1,4 +1,4 @@
-function visualize(file, outputName)
+function visualizeFilters(file, outputName)
 % file is defined to be a MAT file with the following variable:
 % numLayers - number of matrices stored in file
 % filters - cell array of matrices (one matrix per layer), where each
@@ -14,10 +14,10 @@ data = load(file, 'numLayers', 'filters');
 numLayers = data.numLayers;
 filters = data.filters;
 assert(numLayers > 0, 'No layers to process!');
-visualizeNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputName);
+visualizeFiltersNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputName);
 end
 
-function visualizeNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputName)
+function visualizeFiltersNoMAT(numLayers, filters, borderWidth, magnifyRatio, outputName)
 % For each layer...
 for i=1:numLayers
     layer = filters{i};

@@ -113,7 +113,7 @@ class ConvNet:
         return self.forward_prop(inp)
 
     # on a pre-trained network, get the outputs for a test set
-    def testSet(self, testSet, labels):
+    def testSet(self, testSet, labels, saveActivations = False):
         assert len(testSet) == len(labels), "Need 1 label per test image"
 
         numCorrect = 0
@@ -121,6 +121,11 @@ class ConvNet:
             # Propagate our sample through the network.
             expectedOutputLabel = labels[i]
             outputVector = self.testSample(testSet[i], labels[i])
+
+            # If asked, we save the activations from our convolutional
+            # and pooling layers to a MATLAB file.
+            if saveActivations:
+                self.saveActivations(i)
 
             # We have a vector of outputs.
             # Get the index of the max score of this output.
@@ -237,6 +242,31 @@ class ConvNet:
 
         # write to disk
         misc.saveToMatlab("filters-" + str(epochNum), valuesToSave)
+
+    def saveActivations(self, epochNum):
+        # save all the lastOutput matrices to matlab cell array
+        valuesToSave = {}
+
+        # use the outputs from convolution AND pooling layers
+        numLayers = 0
+        for layer in self.layers:
+            if isinstance(layer, ConvolutionLayer) or isinstance(layer, PoolingLayer):
+                numLayers += 1
+
+        # so matlab can easily know size of array
+        valuesToSave["numLayers"] = numLayers
+
+        activations = np.zeros((numLayers, ), dtype = np.object) # object == cell array
+
+        i = 0
+        for layer in self.layers:
+            if isinstance(layer, ConvolutionLayer) or isinstance(layer, PoolingLayer):
+                activations[i] = layer.lastOutput
+                i += 1
+        valuesToSave["activations"] = filters
+
+        # write to disk
+        misc.saveToMatlab("activations-" + str(epochNum), valuesToSave)
 
     def _saveTrainedConfigFile(self, numEpochs):
         pathToTrainedConfigFile = self.pathToConfigFile[:-4] + '-trained-' + str(numEpochs) + '.ini'
