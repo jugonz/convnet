@@ -183,7 +183,7 @@ class ConvNet:
             desired[self.labelSet[labels[sample_idxs[-1]]]] = 1.
             desired = np.array([desired])
 
-            if epoch % 50 == 0:
+            if epoch:
                 print "error at epoch %d: %0.3f" % (epoch, self._error(self.layers[-1].lastActivation, desired))
         # save final trained cnn
         if maxEpochs%epochsPerSave != 0:

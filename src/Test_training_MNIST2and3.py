@@ -13,7 +13,7 @@ class MNISTConvNetTrainingTest(unittest.TestCase):
 		self.imagesOf3s = extract_mnist.getMNISTTrainingSamplesNum(3)
 
 	def testTrain2sAnd3s(self):
-		numImages = 125 # number of images of each category
+		numImages = 10 # number of images of each category
 
 		# combine two data sets
 		twos = self.imagesOf2s[0:numImages]
@@ -28,10 +28,11 @@ class MNISTConvNetTrainingTest(unittest.TestCase):
 			labels.append("three")
 
 		# epochs
-		maxEpochs = 10
-		epochsPerSave = 10
+		maxEpochs = 50
+		epochsPerSave = 50
 
 		# run test
+		print "Start"
 		self.net.trainSet(data, labels, maxEpochs, epochsPerSave)
 		self.net.testSet(data, labels)
 		self.net.saveFilters(maxEpochs)
