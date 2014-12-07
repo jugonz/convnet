@@ -15,5 +15,19 @@ def getMNISTTrainingSamplesNum(digit):
 
 	return np.array(imagesMatchingDigits)
 
+def getMNISTTestSamplesNum(digit):
+	assert digit >=0 and digit <= 9, "Invalid digit passed."
+
+	mnistTest = read_mnist.getMNISTTest()
+	images = mnistTest[0]
+	labels = mnistTest[1]
+
+	imagesMatchingDigits = []
+	for i in xrange(labels.shape[0]):
+		if labels[i] == digit:
+			imagesMatchingDigits.append(images[i])
+
+	return np.array(imagesMatchingDigits)
+
 if __name__ == '__main__':
 	print getMNISTTrainingSamplesNum(3)[0:125, :, :].shape
