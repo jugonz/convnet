@@ -1,4 +1,5 @@
 from ConvNet import ConvNet
+import extract_mnist
 import misc
 import numpy as np
 import unittest

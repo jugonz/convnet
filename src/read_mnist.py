@@ -1,10 +1,10 @@
 import numpy as np
 
 ## File paths.
-testImgsLoc = "test_imgs/mnist/t10k-images-idx3-ubyte"
-trainImgsLoc = "test_imgs/mnist/train-images-idx3-ubyte"
-testLblsLoc = "test_imgs/mnist/t10k-labels-idx1-ubyte"
-trainLblsLoc = "test_imgs/mnist/train-labels-idx1-ubyte"
+testImgsLoc = "../test_imgs/mnist/t10k-images-idx3-ubyte"
+trainImgsLoc = "../test_imgs/mnist/train-images-idx3-ubyte"
+testLblsLoc = "../test_imgs/mnist/t10k-labels-idx1-ubyte"
+trainLblsLoc = "../test_imgs/mnist/train-labels-idx1-ubyte"
 
 ## Magic numbers. These are used to verify file contents (don't change).
 imgsMagic = 2051
