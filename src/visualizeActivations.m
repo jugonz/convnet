@@ -30,13 +30,15 @@ for i=1:numLayers
         layerResized(j, :, :) = resized;
     end
     layer = layerResized;
-    
+
     % Keep track of other paramaters.
     numFilters = size(layer, 1);
     filterDim = size(layer, 2);
     border = zeros(filterDim, borderWidth, 3); % 3 for RGB
-    border(:, :, 3) = ones(filterDim, borderWidth);
-    
+    for j=1:3
+        border(:, :, j) = ones(filterDim, borderWidth);
+    end
+
     % For each filter...
     % add to our final image plus a border.
     newIm = [];
@@ -47,7 +49,7 @@ for i=1:numLayers
             newIm = [newIm border];
         end
     end
-    
+
     % Save the image to PNG.
     imwrite(newIm, strcat(outputName, '_layer_', num2str(i), '.png'));
 end

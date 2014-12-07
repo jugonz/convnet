@@ -50,7 +50,9 @@ for i=1:numLayers
     numFilters = size(layer, 1);
     filterDim = size(layer, 2);
     border = zeros(filterDim, borderWidth, 3); % 3 for RGB
-    border(:, :, 3) = ones(filterDim, borderWidth);
+    for j=1:3
+        border(:, :, j) = ones(filterDim, borderWidth);
+    end
 
     % For each filter...
     % add to our final image plus a border.
