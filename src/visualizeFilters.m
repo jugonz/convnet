@@ -48,8 +48,7 @@ for i=1:numLayers
     % Keep track of other paramaters.
     numFilters = size(layer, 1);
     filterDim = size(layer, 2);
-    border = zeros(filterDim, borderWidth, 3); % 3 for RGB
-    border(:, :, 3) = ones(filterDim, borderWidth);
+    border = ones(filterDim, borderWidth, 3); % 3 for RGB
     
     %%%%
     numPerRow = 20;
