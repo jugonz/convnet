@@ -2,6 +2,7 @@ from ConvNet import ConvNet
 import extract_mnist
 import numpy as np
 import unittest
+import misc
 
 class MNISTConvNetTestingTest(unittest.TestCase):
 	def setUp(self):
@@ -14,26 +15,27 @@ class MNISTConvNetTestingTest(unittest.TestCase):
 		self.imagesOf7s = extract_mnist.getMNISTTestSamplesNum(7)
 
 	def testTest2sAnd3sAnd7s(self):
-		numImages = 1000 # number of images of each category
+		numImages = 1 # number of images of each category
 
 		# combine two data sets
-		twos = self.imagesOf2s[0:numImages]
+		#twos = self.imagesOf2s[0:numImages]
 		threes = self.imagesOf3s[0:numImages]
-		sevens = self.imagesOf7s[0:numImages]
-		data = np.concatenate((twos, threes, sevens))
+		#sevens = self.imagesOf7s[0:numImages]
+		#data = np.concatenate((twos, threes, sevens))
 
 		# set up labels
 		labels = []
+		#for i in xrange(numImages):
+		#	labels.append("two")
 		for i in xrange(numImages):
-			labels.append("two")
-		for i in xrange(numImages):
-			labels.append("three")
-		for i in xrange(numImages):
-			labels.append("seven")
+		    labels.append("three")
+		#for i in xrange(numImages):
+	#		labels.append("seven")
 
 		# run test
-		self.net.testSet(data, labels)
+		self.net.testSet(threes, labels)
 		self.net.saveFilters(100)
+		self.net.saveActivations(100)
 
 if __name__ == "__main__":
     unittest.main()

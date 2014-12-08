@@ -263,7 +263,9 @@ class ConvNet:
             if isinstance(layer, ConvolutionLayer) or isinstance(layer, PoolingLayer):
                 activations[i] = layer.lastOutput
                 i += 1
-        valuesToSave["activations"] = filters
+            #if isinstance(layer, FullyConnectedLayer):
+            #    print layer.lastActivation
+        valuesToSave["activations"] = activations
 
         # write to disk
         misc.saveToMatlab("activations-" + str(epochNum), valuesToSave)
