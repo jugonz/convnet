@@ -207,7 +207,15 @@ takes 2-3 weeks to train using four GPUs.
 
 \begin{figure*}
   \includegraphics[width=\textwidth,height=8cm]{convtrans}
-  \caption{This is a tiger.}
+  \caption{Given an input image $I$ of size $w_{img} \times w_{img}$ with $c$ channels and $K$ kernels of size 
+  $w_k \times w_k$ with $c$ channels, each region on which the kernel is applied can be flattened to form a 
+  row of a matrix $I’$ of size $(w_{img} - w_k + 1)^2 \times c \cdot w_k^2$. The set of kernels can also be 
+  flattened to form columns of a matrix $W$ of size $c \cdot w_k^2 \times K$. If we take the matrix product 
+  of $I’$ and $W$, then the $i^\text{th}$ column of the resultant matrix is a flattened version of the image 
+  convolved with the $i^\text{th}$ kernel. The matrix $W$ can be seen as the weights of a fully connected 
+  network with $c \cdot w_k^2$ inputs and $K$ outputs. Thus, learning of the kernels is reduced to batch 
+  learning of the weights of this fully connected network.
+}
   \label{fig:convtrans}
 \end{figure*}
 
