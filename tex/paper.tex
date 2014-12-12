@@ -302,6 +302,15 @@ is accomplished.
 %-------------------------------------------------------------------------
 \subsection{Pooling Layer}
 
+The pooling layer reduces the dimension of its input by a factor of n. During forward propagation, each 
+unit in the pooling layer looks at an n x n window and applies some pooling operator, either max or mean. 
+Though these n x n windows could in principle overlap, in our implementation they do not. No learning occurs 
+in this layer, thus backpropagation only serves to directly forward the errors to the previous layer. 
+If the pooling layer did max-pooling, then each pooling unit propagates the error to the input unit that 
+had the max value with all other errors in that window being zero. If the pooling layer did mean-pooling, 
+then each pooling unit propagates the value of the error divided by the number of input units is passed to all input units. 
+
+
 %-------------------------------------------------------------------------
 \subsection{Fully Connected Layer}
 \label{sec:full}
