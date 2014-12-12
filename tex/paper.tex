@@ -24,7 +24,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{Object Detection and Recognition: A Survey}
+\title{New titles are hard to come up with}
 
 \author{Reymundo A. Gutierrez\\
 Massachusetts Institute of Technology\\
@@ -59,13 +59,13 @@ performing object recognition).
 The applications of object recognition and detection are endless, from simple visual search of
 images to high-level scene understanding. It is by no means a solved problem.
 This paper provides a survey of the current landscape of approaches toward the problem,
-laying a conceptual foundation for the implementation of a convolutional neural net for
+laying a conceptual foundation for the design and implementation of a convolutional neural net for
 digit recognition.
 
 Modern approaches towards object recognition differ significantly but tend to depend on
 properties of images (features) that are not disturbed during transformations.
-As an example, \cite{LoweObjSIFT} informed the computer vision community about the importance of local
-scale-invariant features on images.
+As an example, \cite{LoweObjSIFT} informed the computer vision community about the importance of
+local scale-invariant features on images.
 These lower-level features are still useful in innovative systems, but because of their
 locality are hard to utilize alone.
 Relationships between features can be leveraged to determine higher-level structure of
@@ -75,12 +75,28 @@ With such a hierarchy it is possible to look for translation-invariant features 
 This demonstrates that the difficulty of object recognition often lies in determining
 appropriate representations of image data.
 
+Convolutional neural nets recognize this difficulty and tackle it by iteratively tuning randomly
+initialized filters (that act on all locations of an image) to produce a well-known output using
+the back-propagation algorithm. These neural nets are convolutional because the convolution operator
+is used to effectively share filters across an entire image. While time-consuming to train, CNN's
+can provide world-class performance on a large and diverse dataset \cite{ImageNet}.
+To gain a deeper understanding of the challenges of implementing an object recognition system,
+we designed and implemented a convolutional neural net and tested it on the popular MNIST
+digit dataset \cite{MNIST}.
+To examine the effect of the number of layers in convolutional neural networks,
+we trained two versions of our net with different depths on the MNIST training data
+and compare their performance here.
+
 The rest of this paper is organized as follows.
 Section 2 provides an overview of several modern approaches to object recognition
 roughly in chronological order, to make it easier to see how strikingly different
 solutions to the same problem have evolved.
-Section 3 shows how we will use ideas from these approaches to construct
+Section 3 shows how we use ideas from these approaches to design
 a convolutional neural network for recognizing hand-written digit data.
+Section 4 describes our implementation of a CNN.
+Section 5 highlights the performance of our CNN in different conditions and with different depths.
+Section 6 concludes with a discussion of the implications of our results, and ideas for
+further work.
 
 %------------------------------------------------------------------------
 \section{Review of Methods}
@@ -164,11 +180,11 @@ two dimensional structure. This loss also makes translational invariance difficu
 \subsection{Convolutional Deep Belief Networks}
 
 To address the scalability and translational invariance issues inherent in DBNs,
-Lee et al. introduce the convolutional deep belief network (CDBN),
+Lee \etal introduce the convolutional deep belief network (CDBN),
 which augments DBNs with convolutional restricted Boltzmann machines (CRBMs)
 and probabilistic max-pooling layers between CRBMs \cite{CDBN}.
 Like RBMs, CRBMs consist of a visible layer and hidden layer, but the hidden
-layer here is partitioned into \(K \) square blocks, each associated with a filter
+layer here is partitioned into $K$ square blocks, each associated with a filter
 whose weights are shared amongst the units in a block.
 The relation between the visible units and the corresponding hidden units in each
 block is defined by a convolution of the weight matrix and the image.
@@ -176,7 +192,7 @@ block is defined by a convolution of the weight matrix and the image.
 To alleviate the scaling issue, a probabilistic max-pooling layer is added above the CRBM,
 forming a max-pooling CRBM.
 This shrinks the representation of the hidden layer by a constant factor.
-These pooling layers contain \(K \) blocks, with each block mapping to the corresponding hidden
+These pooling layers contain $K$ blocks, with each block mapping to the corresponding hidden
 layer block below it as follows: the hidden layer block is partitioned into square blocks with the
 corresponding pooling unit for each block being set to 1 if and only if a unit in its hidden layer
 block is 1, of which only one can be non-zero.
@@ -192,10 +208,10 @@ on the higher level features.
 Because CDBNs construct a hierarchical representation of their input that is robust
 to appearance, scale, and occlusion variation, they are are able to deliver
 state-of-the-art performance.
-They are not without shortcomings: in particular, they suffer from overfitting due
-to overrepresentation of their input data.
+They are not without shortcomings: in particular, they suffer from over-fitting due
+to over-representation of their input data.
 There are several solutions to this problem. In dropout, the output of a hidden layer
-unit is set to 0 with probability \(1/2 \); this unfortunately significantly increases training
+unit is set to 0 with probability $\frac{1}{2}$; this unfortunately significantly increases training
 time (which can already take weeks). Another common solution, data augmentation,
 is to insert altered forms of the input images into the dataset (used in \cite{Verydeep}).
 
@@ -207,33 +223,77 @@ to the CDBN and emphasizing very small filters.
 
 In order to counter the extra complexity introduced by these changes,
 \cite{ImageNet} and \cite{Verydeep} replace the standard sigmoid nonlinear output function with the
-Rectified Linear Unit (ReLU) function \(f(x) = max(0, x) \) for quicker training.
+Rectified Linear Unit (ReLU) function $f(x) = max(0, x)$ for quicker training.
 Additionally, both use multiple GPUs for significant speedup in matrix operations
 and easy parallelism.
 Nevertheless, these CDBNs take a very long time to train: the net in \cite{Verydeep}
 takes 2-3 weeks to train using four GPUs.
 
 %-------------------------------------------------------------------------
-\section{MNIST Digit Recognition Proposal}
+\section{CNN Design}
 
 Utilizing some of the ideas outlined for object recognition in section 2,
-we will implement a convolutional deep belief network in the style of \cite{CDBN} to recognize
+here we will outline the design of a convolutional neural network to recognize
 handwritten digits from the MNIST database \cite{MNIST}.
-This CDBN will determine image features to train an off-the-shelf support-vector machine
-that will perform the classification step.
-It is clear that properties of the net like the number of layers, the pooling procedure,
-and choice of non-linear output function will require experimentation to optimize.
-Currently we believe that a net as deep as \cite{Verydeep} may not be necessary or may even perform worse than a
-somewhat shallower net.
-We plan on implementing max-pooling in a way that allows us to vary the overlap of blocks in the
-procedure, including zero overlap.
-Finally, we plan on evaluating our net using both the sigmoid and ReLU nonlinear
-output functions to test the tradeoff in training time and performance.
+This CNN performs the entire classification step: it accepts an entire image as input
+and is tunable to output the index of a class label in a known class label array.
 
-Because handwritten digits share many properties with handwritten characters
-and highway indicator signs, we feel it is natural to evaluate our CDBN on these datasets.
-We will test this theory on our net with data from REMOVED and REMOVED
-and compare its effectiveness relative to recognizing digits.
+Our CNN implements three types of layers common to CNNs: convolutional layers, pooling layers,
+and traditional fully-connected layers \cite{ImageNet} \cite{Verydeep}.
+It allows for any number of layers, provided that convolutional and pooling layers are
+instantiated in pairs.
+Pooling layers may utilize maximum or mean pooling.
+It also allows for the use of multiple non-linear output functions,
+including the classic sigmoid function and the hyperbolic tangent function.
+
+%-------------------------------------------------------------------------
+\subsection{Convolutional Layer}
+
+%-------------------------------------------------------------------------
+\subsection{Pooling Layer}
+
+%-------------------------------------------------------------------------
+\subsection{Fully Connected Layer}
+
+Our fully connected layer is conceptually no different than layers in most typical multilayer
+perceptrons, with individual weights assigned to every input to the layer.
+This makes calculation of updates to these weights very simple and quick to produce, given the
+difference between the desired and actual outputs of the layer.
+For ease of our own understanding, we designed our convolutional layer to consist of a
+fully connected layer that operates on a transformed version of the input to that layer
+(namely, a flattened set of inputs to convolve).
+
+Because our fully connected layer also affects the output of convolutional layers, its performance
+is crucial to the performance of our net as whole. Therefore common problems that multilayer
+perceptrons face, like strong sensitivity to their initial weights, must be dealt with for
+reliable performance. Therefore, we implement some suggestions from LeCun
+\etal \cite{EfficientBackProp}.
+Notably, we initialize starting weights for all fully connected layers (including those used
+internally by convolutional layers) to be from a Gaussian distribution with mean 0 and standard
+deviation of 0.01, so that weights are very close to 0 but large enough to be used in calculations
+without sacrificing too much precision.
+Additionally, we divide these initial weights by the square root of the number of inputs to the
+layer for more resistance against ``bad'' initial weights.
+During testing, we found that these two modifications made our net more likely to converge and
+also increased the speed of convergence.
+
+Another way we improved the likelihood of convergence was to make each weight update of a
+fully connected layer also depend on the previous weight update (this is sometimes
+referred to as momentum). With this change, the weight update equation for a fully connected
+layer becomes
+$$\Delta W_{t} = W_{t} - (\eta \frac{\partial E}{\partial W_{t}} +
+\alpha \Delta W_{t-1})$$
+where $\eta$ is the learning rate and $\alpha$ is the momentum.
+Because many updates to $W$ have the same sign, this can effective speed up training time
+\cite{WinMomentum}.
+Finding good values for the momentum and learning rate seems to be
+an exercise in trial-and-error, although we did find that
+the learning rates we used tended to be below $0.2$.
+
+One important suggestion from \cite{EfficientBackProp} that we did not use was the
+recommended sigmoid non-linear output function of $f(x) = 1.7159 * tanh(\frac{2}{3}x)$.
+While we experimented with the standard sigmoid of $f(x) = \frac{1}{1 + exp(-x)}$,
+we used $f(x) = tanh(x)$ for most of our results.
 
 {\small
 \bibliographystyle{ieee}
