@@ -24,7 +24,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{Convolutional neural nets for the MNIST digit dataset}
+\title{Convolutional Neural Nets for the MNIST Digit Dataset}
 
 \author{Reymundo A. Gutierrez\\
 Massachusetts Institute of Technology\\
@@ -183,7 +183,9 @@ We can construct a different way to use a hierarchical representation of an imag
 by performing convolutions at different scales of images with sets of filters.
 Convolutional Neural Nets (CNNs) use a combination of convolutional layers, which perform convolution
 of an image with a set of filters, and pooling layers, which reduce the dimensionality of the output
-of convolutional layers, to create this representation.
+of convolutional layers, to create this representation. Convolutional layers serve to share the filter weights
+across the image and thus reduce the number of parameters that must be trained, while also providing
+a certain degree of traslational equivariance.
 Pooling layers reduce dimensionality by taking the maximum value (max-pooling) or mean value
 (mean-pooling) of a region of convolutional outputs.
 This reduction of dimensionality is important because it helps reduce the number of parameters that
