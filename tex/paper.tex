@@ -24,7 +24,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{New titles are hard to come up with}
+\title{Convolutional neural nets for the MNIST digit dataset}
 
 \author{Reymundo A. Gutierrez\\
 Massachusetts Institute of Technology\\
@@ -177,8 +177,36 @@ due to the representational redundancy needed to compensate for their loss of im
 two dimensional structure. This loss also makes translational invariance difficult to achieve.
 
 %-------------------------------------------------------------------------
+\subsection{Convolutional Neural Networks}
+
+We can construct a different way to use a hierarchical representation of an image for classification
+by performing convolutions at different scales of images with sets of filters.
+Convolutional Neural Nets (CNNs) use a combination of convolutional layers, which perform convolution
+of an image with a set of filters, and pooling layers, which reduce the dimensionality of the output
+of convolutional layers, to create this representation.
+Pooling layers reduce dimensionality by taking the maximum value (max-pooling) or mean value
+(mean-pooling) of a region of convolutional outputs.
+This reduction of dimensionality is important because it helps reduce the number of parameters that
+must be trained in the network, thus speeding up learning.
+
+Modifications to this architecture \cite{CDBN} have produced some of the most performant
+systems to date.
+By overlapping hidden layer blocks during max-pooling, \cite{ImageNet} increases performance.
+The approach outlined in \cite{Verydeep} gains significant accuracy by constructing a net with
+a large number of convolution and pooling layers (using very small filters).
+
+In order to counter the extra complexity introduced by these changes,
+\cite{ImageNet} and \cite{Verydeep} replace the standard sigmoid nonlinear output function with the
+Rectified Linear Unit (ReLU) function $f(x) = max(0, x)$ for quicker training.
+Additionally, both use multiple GPUs for significant speedup in matrix operations
+and easy parallelism.
+Nevertheless, these CNNs take a very long time to train: the net in \cite{Verydeep}
+takes 2-3 weeks to train using four GPUs.
+
+%-------------------------------------------------------------------------
 \subsection{Convolutional Deep Belief Networks}
 
+The idea of using convolution can also be applied to Deep Belief nets.
 To address the scalability and translational invariance issues inherent in DBNs,
 Lee \etal introduce the convolutional deep belief network (CDBN),
 which augments DBNs with convolutional restricted Boltzmann machines (CRBMs)
@@ -191,13 +219,11 @@ block is defined by a convolution of the weight matrix and the image.
 
 To alleviate the scaling issue, a probabilistic max-pooling layer is added above the CRBM,
 forming a max-pooling CRBM.
-This shrinks the representation of the hidden layer by a constant factor.
 These pooling layers contain $K$ blocks, with each block mapping to the corresponding hidden
 layer block below it as follows: the hidden layer block is partitioned into square blocks with the
 corresponding pooling unit for each block being set to 1 if and only if a unit in its hidden layer
 block is 1, of which only one can be non-zero.
-The CDBN is constructed by stacking max-pooling CRBMs,
-which are trained similarly to RBMs.
+The CDBN is constructed by stacking max-pooling CRBMs, which are trained similarly to RBMs.
 
 The training of CDBNs is accomplished using the same greedy approach as in DBNs.
 Once the parameters have been learned, the CDBNs representation of an image can be computed
@@ -213,21 +239,8 @@ to over-representation of their input data.
 There are several solutions to this problem. In dropout, the output of a hidden layer
 unit is set to 0 with probability $\frac{1}{2}$; this unfortunately significantly increases training
 time (which can already take weeks). Another common solution, data augmentation,
-is to insert altered forms of the input images into the dataset (used in \cite{Verydeep}).
-
-Modifications to the original CDBN architecture \cite{CDBN} have produced the most performant
-systems to date.
-By overlapping hidden layer blocks during max-pooling, \cite{ImageNet} increases performance.
-The approach outlined in \cite{Verydeep} gains significant accuracy by adding many extra layers
-to the CDBN and emphasizing very small filters.
-
-In order to counter the extra complexity introduced by these changes,
-\cite{ImageNet} and \cite{Verydeep} replace the standard sigmoid nonlinear output function with the
-Rectified Linear Unit (ReLU) function $f(x) = max(0, x)$ for quicker training.
-Additionally, both use multiple GPUs for significant speedup in matrix operations
-and easy parallelism.
-Nevertheless, these CDBNs take a very long time to train: the net in \cite{Verydeep}
-takes 2-3 weeks to train using four GPUs.
+is to insert altered forms of the input images into the dataset
+(a good description of this idea is provided in \cite{Verydeep}).
 
 %-------------------------------------------------------------------------
 \section{CNN Design}
@@ -262,6 +275,12 @@ difference between the desired and actual outputs of the layer.
 For ease of our own understanding, we designed our convolutional layer to consist of a
 fully connected layer that operates on a transformed version of the input to that layer
 (namely, a flattened set of inputs to convolve).
+
+Because a single input image is broken up into multiple samples during convolution, our
+fully connected layer is capable of batch training, where the update to a set of weights over
+many samples is the sum of updates for each sample. While batch training as a whole is generally
+slower than on-line training \cite{EfficientBackProp}, we are still performing on-line training
+with respect to each input image, so we do not take an unreasonable performance hit.
 
 Because our fully connected layer also affects the output of convolutional layers, its performance
 is crucial to the performance of our net as whole. Therefore common problems that multilayer
@@ -298,50 +317,50 @@ we used $f(x) = tanh(x)$ for most of our results.
 %-------------------------------------------------------------------------
 \section{Experiments}
 
-In the following we present the results of the experiments we performed. The experiments were conducted 
-on one of two architectures. The first architecture was composed of a single convolutional and pooling 
-layer followed by two fully connected layers. The convolutional layer used 20 filters of size 3x3, 
-while the max-pooling layer used non-overlapping windows of size 2x2. The first fully connected layer 
-was composed of 150 units, and the final output layer had 10 units (one per label). The second 
-architecture added a second set of convolutional and pooling layers before the fully connected layers. 
-This added convolutional layer had 800 filters of size 8x8, while the added max-pooling layer also used 
-on-overlapping window size of 2x2. The nonlinearity activation function across both architectures and 
-all layers was the hyperbolic tangent. A representation of these architectures can be seen in Figure [?]. 
+In the following we present the results of the experiments we performed. The experiments were conducted
+on one of two architectures. The first architecture was composed of a single convolutional and pooling
+layer followed by two fully connected layers. The convolutional layer used 20 filters of size 3x3,
+while the max-pooling layer used non-overlapping windows of size 2x2. The first fully connected layer
+was composed of 150 units, and the final output layer had 10 units (one per label). The second
+architecture added a second set of convolutional and pooling layers before the fully connected layers.
+This added convolutional layer had 800 filters of size 8x8, while the added max-pooling layer also used
+on-overlapping window size of 2x2. The nonlinearity activation function across both architectures and
+all layers was the hyperbolic tangent. A representation of these architectures can be seen in Figure [?].
 
 %-------------------------------------------------------------------------
 \subsection{MNIST Dataset}
 
-The following experiments were conducted using the MNIST dataset [?], which includes a training set of 
-60000 28x28 handwritten digit images and a test set of 10000 28x28 handwritten digit images. It is important 
-to note that both the training and test sets are composed of two sets of digits: an easier set written by 
+The following experiments were conducted using the MNIST dataset \cite{MNIST}, which includes a training set of
+60000 28x28 handwritten digit images and a test set of 10000 28x28 handwritten digit images. It is important
+to note that both the training and test sets are composed of two sets of digits: an easier set written by
 US Census Bureau employees and a harder set written by high school students.
 
 %-------------------------------------------------------------------------
 \subsection{One Convolutional Layer}
 
-The one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit 
-(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images). 
+The one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit
+(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images).
 The training images were taken from the easier portion of the training set, while the test images were taken from
 both sets. The results of this training can be seen in Figure [?]. The test accuracy was recorded every five training
-iterations. An example classification of an image along with the internal state of the trained network is depicted 
+iterations. An example classification of an image along with the internal state of the trained network is depicted
 in Figure [?]. Figure [?] shows examples of correctly and incorrectly classified images.
 
 %-------------------------------------------------------------------------
 \subsection{Two Convolutional Layers}
 
-The two convolutional/pooling layer architecture was also trained for 50 iterations with 50 images per digit 
-(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images). 
-The training images were taken from the easier portion of the training set, while the test images were taken from both sets. 
-The results of this training can be seen in Figure [?]. Again, the test accuracy was recorded every five training iterations. 
-An example classification of an image along with the internal state of the trained network is depicted in Figure [?]. Figure 
+The two convolutional/pooling layer architecture was also trained for 50 iterations with 50 images per digit
+(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images).
+The training images were taken from the easier portion of the training set, while the test images were taken from both sets.
+The results of this training can be seen in Figure [?]. Again, the test accuracy was recorded every five training iterations.
+An example classification of an image along with the internal state of the trained network is depicted in Figure [?]. Figure
 [?] shows examples of correctly and incorrectly classified images.
 
 %-------------------------------------------------------------------------
 \subsection{One Convolutional Layer with Larger Training Set}
 
-The second experiment with the one convolutional/pooling layer architecture was also trained for 50 iterations but 
-with 100 images per digit instead of 50 (training set of 1000 images). This trained network was then tested on 1000 
-new images per digit (test set of 10000 images). The results of this training can be seen in Figure [?]. The test 
+The second experiment with the one convolutional/pooling layer architecture was also trained for 50 iterations but
+with 100 images per digit instead of 50 (training set of 1000 images). This trained network was then tested on 1000
+new images per digit (test set of 10000 images). The results of this training can be seen in Figure [?]. The test
 accuracy was recorded every five training iterations. Figure [?] shows examples of correctly and incorrectly classified images.
 
 
