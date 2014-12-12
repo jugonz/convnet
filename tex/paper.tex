@@ -205,6 +205,12 @@ and easy parallelism.
 Nevertheless, these CNNs take a very long time to train: the net in \cite{Verydeep}
 takes 2-3 weeks to train using four GPUs.
 
+\begin{figure*}
+  \includegraphics[width=\textwidth,height=8cm]{convtrans}
+  \caption{This is a tiger.}
+  \label{fig:convtrans}
+\end{figure*}
+
 %-------------------------------------------------------------------------
 \subsection{Convolutional Deep Belief Networks}
 
@@ -264,27 +270,33 @@ including the classic sigmoid function and the hyperbolic tangent function.
 %-------------------------------------------------------------------------
 \subsection{Convolutional Layer}
 
+\begin{figure*}
+  \includegraphics[width=\textwidth,height=8cm]{botharcs}
+  \caption{This is a tiger.}
+  \label{fig:convarcs}
+\end{figure*}
+
 The convolutional layer learns a set of small filters that when convolved with the input image
-during forward propagation extract salient features. This is done through the use of local 
-connectivity and parameter sharing. Local connectivity refers to each unit of the convolutional 
-layer being connected only to a small region of the image; this region is known as the unit’s 
-receptive field, and the weights of these connections form a filter. Neighboring units in the 
-convolutional layer have overlapping receptive fields, with each receptive field being shifted 
-by one pixel as you move along a certain dimension. These units are then organized into feature 
-maps that share the same weights on their connections. This combination of local connectivity 
-and parameter sharing results in a network with sparser connectivity and fewer parameters than 
+during forward propagation extract salient features. This is done through the use of local
+connectivity and parameter sharing. Local connectivity refers to each unit of the convolutional
+layer being connected only to a small region of the image; this region is known as the unit’s
+receptive field, and the weights of these connections form a filter. Neighboring units in the
+convolutional layer have overlapping receptive fields, with each receptive field being shifted
+by one pixel as you move along a certain dimension. These units are then organized into feature
+maps that share the same weights on their connections. This combination of local connectivity
+and parameter sharing results in a network with sparser connectivity and fewer parameters than
 would be present in a fully connected network.
 
-Though one could implement the convolutional layer directly by building the sparse network and 
-applying the appropriate weight updates during the backpropagation step, it is also possible to 
-transform this operation into the form of batch learning of the weights of a fully connected 
+Though one could implement the convolutional layer directly by building the sparse network and
+applying the appropriate weight updates during the backpropagation step, it is also possible to
+transform this operation into the form of batch learning of the weights of a fully connected
 network (discussion in section \ref{sec:full}), such that
 
 $$ I' \times W = [I*k_1 \hspace{10pt} I*k_2 \hspace{10pt} \cdots \hspace{10pt} I*k_K]$$
-where $I$ is the image, $W$ is the weight matrix of the fully connected network, $I$’ is the transformed 
-image, and $k_i$ is the $i^{\text{th}}$ kernel. The learned filters would then correspond to slices of the kernels. 
-We took the later approach for ease of implementation. Figure [?] demonstrates how this transformation 
-is accomplished. 
+where $I$ is the image, $W$ is the weight matrix of the fully connected network, $I$’ is the transformed
+image, and $k_i$ is the $i^{\text{th}}$ kernel. The learned filters would then correspond to slices of the kernels.
+We took the later approach for ease of implementation. Figure [?] demonstrates how this transformation
+is accomplished.
 
 
 %-------------------------------------------------------------------------
@@ -335,12 +347,6 @@ Finding good values for the momentum and learning rate seems to be
 an exercise in trial-and-error, although we did find that
 the learning rates we used tended to be below $0.2$.
 
-\begin{figure*}
-  \includegraphics[width=\textwidth,height=8cm]{botharcs}
-  \caption{This is a tiger.}
-  \label{fig:convarcs}
-\end{figure*}
-
 One important suggestion from \cite{EfficientBackProp} that we did not use was the
 recommended sigmoid non-linear output function of $f(x) = 1.7159 * tanh(\frac{2}{3}x)$.
 While we experimented with the standard sigmoid of $f(x) = \frac{1}{1 + exp(-x)}$,
@@ -381,6 +387,12 @@ both sets. The results of this training can be seen in Figure \ref{fig:accplot}.
 iterations. An example classification of an image along with the internal state of the trained network is depicted
 in Figure \ref{fig:actfilts}. Figure [?] shows examples of correctly and incorrectly classified images.
 
+\begin{figure}
+  \includegraphics[scale=0.55]{AccPlot}
+  \caption{This is also a tiger.}
+  \label{fig:accplot}
+\end{figure}
+
 \subsubsection{Training Set of 1000 Images}
 
 The second experiment with the one convolutional/pooling layer architecture was also trained
@@ -406,11 +418,6 @@ An example classification of an image along with the internal state of the train
 Figure \ref{fig:actfilts}.
 Figure [?] shows examples of correctly and incorrectly classified images.
 
-\begin{figure}
-  \includegraphics[scale=0.55]{AccPlot}
-  \caption{This is also a tiger.}
-  \label{fig:accplot}
-\end{figure}
 
 \begin{figure*}
   \makebox[\textwidth][c]{\includegraphics[scale=0.72]{actfilts}}
