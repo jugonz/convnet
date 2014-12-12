@@ -295,6 +295,57 @@ recommended sigmoid non-linear output function of $f(x) = 1.7159 * tanh(\frac{2}
 While we experimented with the standard sigmoid of $f(x) = \frac{1}{1 + exp(-x)}$,
 we used $f(x) = tanh(x)$ for most of our results.
 
+%-------------------------------------------------------------------------
+\section{Experiments}
+
+In the following we present the results of the experiments we performed. The experiments were conducted 
+on one of two architectures. The first architecture was composed of a single convolutional and pooling 
+layer followed by two fully connected layers. The convolutional layer used 20 filters of size 3x3, 
+while the max-pooling layer used non-overlapping windows of size 2x2. The first fully connected layer 
+was composed of 150 units, and the final output layer had 10 units (one per label). The second 
+architecture added a second set of convolutional and pooling layers before the fully connected layers. 
+This added convolutional layer had 800 filters of size 8x8, while the added max-pooling layer also used 
+on-overlapping window size of 2x2. The nonlinearity activation function across both architectures and 
+all layers was the hyperbolic tangent. A representation of these architectures can be seen in Figure [?]. 
+
+%-------------------------------------------------------------------------
+\subsection{MNIST Dataset}
+
+The following experiments were conducted using the MNIST dataset [?], which includes a training set of 
+60000 28x28 handwritten digit images and a test set of 10000 28x28 handwritten digit images. It is important 
+to note that both the training and test sets are composed of two sets of digits: an easier set written by 
+US Census Bureau employees and a harder set written by high school students.
+
+%-------------------------------------------------------------------------
+\subsection{One Convolutional Layer}
+
+The one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit 
+(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images). 
+The training images were taken from the easier portion of the training set, while the test images were taken from
+both sets. The results of this training can be seen in Figure [?]. The test accuracy was recorded every five training
+iterations. An example classification of an image along with the internal state of the trained network is depicted 
+in Figure [?]. Figure [?] shows examples of correctly and incorrectly classified images.
+
+%-------------------------------------------------------------------------
+\subsection{Two Convolutional Layers}
+
+The two convolutional/pooling layer architecture was also trained for 50 iterations with 50 images per digit 
+(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images). 
+The training images were taken from the easier portion of the training set, while the test images were taken from both sets. 
+The results of this training can be seen in Figure [?]. Again, the test accuracy was recorded every five training iterations. 
+An example classification of an image along with the internal state of the trained network is depicted in Figure [?]. Figure 
+[?] shows examples of correctly and incorrectly classified images.
+
+%-------------------------------------------------------------------------
+\subsection{One Convolutional Layer with Larger Training Set}
+
+The second experiment with the one convolutional/pooling layer architecture was also trained for 50 iterations but 
+with 100 images per digit instead of 50 (training set of 1000 images). This trained network was then tested on 1000 
+new images per digit (test set of 10000 images). The results of this training can be seen in Figure [?]. The test 
+accuracy was recorded every five training iterations. Figure [?] shows examples of correctly and incorrectly classified images.
+
+
+
 {\small
 \bibliographystyle{ieee}
 \bibliography{bib}

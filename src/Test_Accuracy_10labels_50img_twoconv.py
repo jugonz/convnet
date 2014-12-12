@@ -5,9 +5,9 @@ import numpy as np
 import unittest
 import misc
 
-class MNISTConvNetTestingTest(unittest.TestCase):
+class MNISTAccuracyTest(unittest.TestCase):
     def setUp(self):
-        configPath_prefix = "../10labels_50img_twoconv_trained/MNIST10labels_50img_twoConv"
+        configPath_prefix = "../10labels_100img_oneconv_trained/MNIST_full_conv_100"
         self.nets = [ConvNet(configPath_prefix+".ini")]
         for i in xrange(5,55,5):
             self.nets.append(ConvNet(configPath_prefix + "-trained-" + str(i) + ".ini"))
