@@ -338,7 +338,9 @@ to note that both the training and test sets are composed of two sets of digits:
 US Census Bureau employees and a harder set written by high school students.
 
 %-------------------------------------------------------------------------
-\subsection{One Convolutional Layer}
+\subsection{One Convolutional Layer Architecture}
+
+\subsubsection{Training Set of 500 Images}
 
 The one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit
 (training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images).
@@ -347,8 +349,17 @@ both sets. The results of this training can be seen in Figure [?]. The test accu
 iterations. An example classification of an image along with the internal state of the trained network is depicted
 in Figure [?]. Figure [?] shows examples of correctly and incorrectly classified images.
 
+\subsubsection{Training Set of 1000 Images}
+
+The second experiment with the one convolutional/pooling layer architecture was also trained for 50 iterations but
+with 100 images per digit instead of 50 (training set of 1000 images). This trained network was then tested on 1000
+new images per digit (test set of 10000 images). The results of this training can be seen in Figure [?]. The test
+accuracy was recorded every five training iterations. Figure [?] shows examples of correctly and incorrectly classified images.
+
 %-------------------------------------------------------------------------
-\subsection{Two Convolutional Layers}
+\subsection{Two Convolutional Layers Architecture}
+
+\subsubsection{Training Set of 500 Images}
 
 The two convolutional/pooling layer architecture was also trained for 50 iterations with 50 images per digit
 (training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images).
@@ -356,16 +367,6 @@ The training images were taken from the easier portion of the training set, whil
 The results of this training can be seen in Figure [?]. Again, the test accuracy was recorded every five training iterations.
 An example classification of an image along with the internal state of the trained network is depicted in Figure [?]. Figure
 [?] shows examples of correctly and incorrectly classified images.
-
-%-------------------------------------------------------------------------
-\subsection{One Convolutional Layer with Larger Training Set}
-
-The second experiment with the one convolutional/pooling layer architecture was also trained for 50 iterations but
-with 100 images per digit instead of 50 (training set of 1000 images). This trained network was then tested on 1000
-new images per digit (test set of 10000 images). The results of this training can be seen in Figure [?]. The test
-accuracy was recorded every five training iterations. Figure [?] shows examples of correctly and incorrectly classified images.
-
-
 
 {\small
 \bibliographystyle{ieee}
