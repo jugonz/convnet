@@ -311,6 +311,12 @@ Finding good values for the momentum and learning rate seems to be
 an exercise in trial-and-error, although we did find that
 the learning rates we used tended to be below $0.2$.
 
+\begin{figure*}
+  \includegraphics[width=\textwidth,height=8cm]{botharcs}
+  \caption{This is a tiger.}
+  \label{fig:convarcs}
+\end{figure*}
+
 One important suggestion from \cite{EfficientBackProp} that we did not use was the
 recommended sigmoid non-linear output function of $f(x) = 1.7159 * tanh(\frac{2}{3}x)$.
 While we experimented with the standard sigmoid of $f(x) = \frac{1}{1 + exp(-x)}$,
@@ -327,15 +333,16 @@ was composed of 150 units, and the final output layer had 10 units (one per labe
 architecture added a second set of convolutional and pooling layers before the fully connected layers.
 This added convolutional layer had 800 filters of size 8x8, while the added max-pooling layer also used
 on-overlapping window size of 2x2. The nonlinearity activation function across both architectures and
-all layers was the hyperbolic tangent. A representation of these architectures can be seen in Figure [?].
+all layers was the hyperbolic tangent. A representation of these architectures can be seen in Figure
+\ref{fig:convarcs}.
 
 %-------------------------------------------------------------------------
 \subsection{MNIST Dataset}
 
 The following experiments were conducted using the MNIST dataset \cite{MNIST}, which includes a training set of
-60000 28x28 handwritten digit images and a test set of 10000 28x28 handwritten digit images. It is important
-to note that both the training and test sets are composed of two sets of digits: an easier set written by
-US Census Bureau employees and a harder set written by high school students.
+60000 28x28 handwritten digit images and a test set of 10,000 28x28 handwritten digit images.
+It is important to note that both the training and test sets are composed of two sets of digits:
+an easier set written by US Census Bureau employees and a harder set written by high school students.
 
 %-------------------------------------------------------------------------
 \subsection{One Convolutional Layer Architecture}
@@ -343,18 +350,21 @@ US Census Bureau employees and a harder set written by high school students.
 \subsubsection{Training Set of 500 Images}
 
 The one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit
-(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images).
+(training set of 500 images), and was subsequently tested on
+1,000 new images per digit (test set of 10,000 images).
 The training images were taken from the easier portion of the training set, while the test images were taken from
-both sets. The results of this training can be seen in Figure [?]. The test accuracy was recorded every five training
+both sets. The results of this training can be seen in Figure \ref{fig:accplot}. The test accuracy was recorded every five training
 iterations. An example classification of an image along with the internal state of the trained network is depicted
 in Figure [?]. Figure [?] shows examples of correctly and incorrectly classified images.
 
 \subsubsection{Training Set of 1000 Images}
 
-The second experiment with the one convolutional/pooling layer architecture was also trained for 50 iterations but
-with 100 images per digit instead of 50 (training set of 1000 images). This trained network was then tested on 1000
-new images per digit (test set of 10000 images). The results of this training can be seen in Figure [?]. The test
-accuracy was recorded every five training iterations. Figure [?] shows examples of correctly and incorrectly classified images.
+The second experiment with the one convolutional/pooling layer architecture was also trained
+for 50 iterations but with 100 images per digit instead of 50 (training set of 1,000 images).
+This trained network was then tested on 1,000 new images per digit (test set of 10,000 images).
+The results of this training can be seen in Figure \ref{fig:accplot}.
+The test accuracy was recorded every five training iterations.
+Figure [?] shows examples of correctly and incorrectly classified images.
 
 %-------------------------------------------------------------------------
 \subsection{Two Convolutional Layers Architecture}
@@ -362,11 +372,20 @@ accuracy was recorded every five training iterations. Figure [?] shows examples 
 \subsubsection{Training Set of 500 Images}
 
 The two convolutional/pooling layer architecture was also trained for 50 iterations with 50 images per digit
-(training set of 500 images), and was subsequently tested on 1000 new images per digit (test set of 10000 images).
-The training images were taken from the easier portion of the training set, while the test images were taken from both sets.
-The results of this training can be seen in Figure [?]. Again, the test accuracy was recorded every five training iterations.
-An example classification of an image along with the internal state of the trained network is depicted in Figure [?]. Figure
-[?] shows examples of correctly and incorrectly classified images.
+(training set of 500 images), and was subsequently tested on 1,000 new images per digit
+(test set of 10,000 images).
+The training images were taken from the easier portion of the training set,
+while the test images were taken from both sets.
+The results of this training can be seen in Figure \ref{fig:accplot}.
+Again, the test accuracy was recorded every five training iterations.
+An example classification of an image along with the internal state of the trained network is depicted in Figure [?].
+Figure [?] shows examples of correctly and incorrectly classified images.
+
+\begin{figure}
+  \includegraphics[scale=0.55]{AccPlot}
+  \caption{This is also a tiger.}
+  \label{fig:accplot}
+\end{figure}
 
 {\small
 \bibliographystyle{ieee}
