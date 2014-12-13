@@ -207,13 +207,13 @@ takes 2-3 weeks to train using four GPUs.
 
 \begin{figure*}
   \includegraphics[width=\textwidth,height=8cm]{convtrans}
-  \caption{Given an input image $I$ of size $w_{img} \times w_{img}$ with $c$ channels and $K$ kernels of size 
-  $w_k \times w_k$ with $c$ channels, each region on which the kernel is applied can be flattened to form a 
-  row of a matrix $I’$ of size $(w_{img} - w_k + 1)^2 \times c \cdot w_k^2$. The set of kernels can also be 
-  flattened to form columns of a matrix $W$ of size $c \cdot w_k^2 \times K$. If we take the matrix product 
-  of $I’$ and $W$, then the $i^\text{th}$ column of the resultant matrix is a flattened version of the image 
-  convolved with the $i^\text{th}$ kernel. The matrix $W$ can be seen as the weights of a fully connected 
-  network with $c \cdot w_k^2$ inputs and $K$ outputs. Thus, learning of the kernels is reduced to batch 
+  \caption{Given an input image $I$ of size $w_{img} \times w_{img}$ with $c$ channels and $K$ kernels of size
+  $w_k \times w_k$ with $c$ channels, each region on which the kernel is applied can be flattened to form a
+  row of a matrix $I’$ of size $(w_{img} - w_k + 1)^2 \times c \cdot w_k^2$. The set of kernels can also be
+  flattened to form columns of a matrix $W$ of size $c \cdot w_k^2 \times K$. If we take the matrix product
+  of $I’$ and $W$, then the $i^\text{th}$ column of the resultant matrix is a flattened version of the image
+  convolved with the $i^\text{th}$ kernel. The matrix $W$ can be seen as the weights of a fully connected
+  network with $c \cdot w_k^2$ inputs and $K$ outputs. Thus, learning of the kernels is reduced to batch
   learning of the weights of this fully connected network.
 }
   \label{fig:convtrans}
@@ -310,13 +310,13 @@ is accomplished.
 %-------------------------------------------------------------------------
 \subsection{Pooling Layer}
 
-The pooling layer reduces the dimension of its input by a factor of n. During forward propagation, each 
-unit in the pooling layer looks at an n x n window and applies some pooling operator, either max or mean. 
-Though these n x n windows could in principle overlap, in our implementation they do not. No learning occurs 
-in this layer, thus backpropagation only serves to directly forward the errors to the previous layer. 
-If the pooling layer did max-pooling, then each pooling unit propagates the error to the input unit that 
-had the max value with all other errors in that window being zero. If the pooling layer did mean-pooling, 
-then each pooling unit propagates the value of the error divided by the number of input units is passed to all input units. 
+The pooling layer reduces the dimension of its input by a factor of n. During forward propagation, each
+unit in the pooling layer looks at an n x n window and applies some pooling operator, either max or mean.
+Though these n x n windows could in principle overlap, in our implementation they do not. No learning occurs
+in this layer, thus backpropagation only serves to directly forward the errors to the previous layer.
+If the pooling layer did max-pooling, then each pooling unit propagates the error to the input unit that
+had the max value with all other errors in that window being zero. If the pooling layer did mean-pooling,
+then each pooling unit propagates the value of the error divided by the number of input units is passed to all input units.
 
 
 %-------------------------------------------------------------------------
@@ -435,6 +435,26 @@ An example classification of an image along with the internal state of the train
 Figure \ref{fig:actfilts}.
 Figure [?] shows examples of correctly and incorrectly classified images.
 
+%-------------------------------------------------------------------------
+\section{Discussion}
+
+Our two convolutional/pooling layer architecture (trained with 500 images) did not significantly outperform
+our one convolutional/pooling layer (also trained with 500 images) on the MNIST dataset. In fact, while both nets
+performed similarly after 50 iterations of training (to a difference of 1\%), the deeper architecture took more
+training iterations to converge, as can be seen on the left side of \ref{fig:accplot}.
+This makes it tempting to conclude that a deep network may not be appropriate for this classification task.
+
+What actually seems to be the core issue is the number of training images. While we were able to train both
+networks with 500 images (and our shallower network with 1,000), this still represents slightly less than 2\% of
+the provided training data \cite{MNIST}. Due to time constraints, we were unable to train with the entire dataset.
+Nevertheless, we were able to achieve good performance (about 94\% on our shallower network) despite the small
+training set.
+
+While analyzing the digits that are misclassified by our nets, we noticed that there are a sizable number of
+digits that are difficult even for humans to discern (see Figure [?] for examples). Our net also seems to have
+significant trouble with discerning the number 8, possibly because it has much in common with multiple other
+digits like 6 and 9, especially when squished. We feel that training on deformed versions of input images
+(say, squished versions of 8's) would significantly improve our net's performance on these digits.
 
 \begin{figure*}
   \makebox[\textwidth][c]{\includegraphics[scale=0.72]{actfilts}}
