@@ -296,7 +296,7 @@ would be present in a fully connected network.
 
 Though one could implement the convolutional layer directly by building the sparse network and
 applying the appropriate weight updates during the back-propagation step, it is also possible to
-transform this operation into the form of batch learning of the weights of a fully connected
+transform this operation into batch learning of the weights on a fully connected
 network (discussion in section \ref{sec:full}), such that
 
 $$ I' \times W = [I*k_1 \hspace{10pt} I*k_2 \hspace{10pt} \cdots \hspace{10pt} I*k_K]$$
@@ -309,8 +309,8 @@ is accomplished.
 \subsection{Pooling Layer}
 
 The pooling layer reduces the dimension of its input by a factor of $n$. During forward propagation, each
-unit in the pooling layer looks at an $n$ x $n$ window and applies some pooling operator, either max or mean.
-Though these $n$ x $n$ windows could in principle overlap, in our implementation they do not. No learning occurs
+unit in the pooling layer looks at an $n \times n$ window and applies some pooling operator, either max or mean.
+Though these $n \times n$ windows could in principle overlap, in our implementation they do not. No learning occurs
 in this layer, thus back-propagation only serves to directly forward the errors to the previous layer.
 If the pooling layer did max-pooling, then each pooling unit propagates the error to the input unit that
 had the max value with all other errors in that window being zero. If the pooling layer does mean-pooling,
@@ -327,7 +327,7 @@ then each pooling unit propagates the value of the error divided by the number o
   then subsamples these feature maps by a factor of 2. The network on the right depicts the two convolutional/pooling layer
   architecture. This network adds a convolutional layer with 800 filters of size $8 \times 8$. Since these filters
   are organized into kernels with 20 channels, this results in 40 $4 \times 4$ feature maps. The additional pooling
-  layer then subsamples by a factor of 2. Both networks contain a subsequent fully connected layer contains 150 units,
+  layer then subsamples by a factor of 2. Both networks contain a subsequent fully connected layer containing 150 units,
   followed by the output layer of 10 units.}
   \label{fig:convarcs}
 \end{figure*}
@@ -367,7 +367,7 @@ layer becomes
 $$\Delta W_{t} = -(\eta \frac{\partial E}{\partial W_{t}} +
 \alpha \Delta W_{t-1})$$
 where $\eta$ is the learning rate and $\alpha$ is the momentum.
-Because many updates to $W$ have the same sign, this can effective speed up training time
+Because many updates to $W$ have the same sign, this can effectively speed up training time
 \cite{WinMomentum}.
 Finding good values for the momentum and learning rate seems to be
 an exercise in trial-and-error, although we did find that
@@ -388,7 +388,7 @@ while the max-pooling layer used non-overlapping windows of size 2x2. The first 
 was composed of 150 units, and the final output layer had 10 units (one per label). The second
 architecture added a second set of convolutional and pooling layers before the fully connected layers.
 This added convolutional layer had 800 filters of size 8x8, while the added max-pooling layer also used
-on-overlapping window size of 2x2. The nonlinearity activation function across both architectures and
+non-overlapping window size of 2x2. The nonlinearity activation function across both architectures and
 all layers was the hyperbolic tangent. A representation of these architectures can be seen in Figure
 \ref{fig:convarcs}.
 
@@ -396,7 +396,7 @@ all layers was the hyperbolic tangent. A representation of these architectures c
 \subsection{MNIST Dataset}
 
 The following experiments were conducted using the MNIST dataset \cite{MNIST}, which includes a training set of
-60,000 28x28 handwritten digit images and a test set of 10,000 28x28 handwritten digit images.
+60,000 $28 \times 28$ handwritten digit images and a test set of 10,000 $28 \times 28$ handwritten digit images.
 It is important to note that both the training and test sets are composed of two sets of digits:
 an easier set written by US Census Bureau employees and a harder set written by high school students.
 
@@ -425,7 +425,7 @@ in Figure \ref{fig:actfilts}. Figure \ref{fig:misclassify} shows examples of cor
   \label{fig:accplot}
 \end{figure}
 
-\subsubsection{Training Set of 1000 Images}
+\subsubsection{Training Set of 1,000 Images}
 
 The second experiment with our one convolutional/pooling layer architecture was also trained
 for 50 iterations but with 100 images per digit instead of 50 (for a training set of 1,000 images).
