@@ -413,7 +413,7 @@ The training images were taken from the easier portion of the training set, whil
 both sets. The results of this training can be seen in Figure \ref{fig:accplot}. This trained network achieved an
 accuracy of 94\% and very quickly converged after five iterations of training. An example
 classification of an image with the activations and learned filters is presented
-in Figure \ref{fig:actfilts}. Figure [?] shows examples of correctly and incorrectly classified images.
+in Figure \ref{fig:actfilts}. Figure \ref{fig:misclassify} shows examples of correctly and incorrectly classified images.
 
 \begin{figure}
   \includegraphics[scale=0.55]{AccPlot}
@@ -451,7 +451,7 @@ in Figure \ref{fig:actfilts}.
 Our two convolutional/pooling layer architecture (trained with 500 images) did not significantly outperform
 our one convolutional/pooling layer (also trained with 500 images) on the MNIST dataset. In fact, while both nets
 performed similarly after 50 iterations of training (to a difference of 1\%), the deeper architecture took more
-training iterations to converge, as can be seen on the left side of \ref{fig:accplot}.
+training iterations to converge, as can be seen on the left side of Figure \ref{fig:accplot}.
 This makes it tempting to conclude that a deep network may not be appropriate for this classification task.
 
 What actually seems to be the core issue is the number of training images. While we were able to train both
@@ -461,7 +461,7 @@ Nevertheless, we were able to achieve good performance (about 94\% on our shallo
 training set.
 
 While analyzing the digits that are misclassified by our nets, we noticed that there are a sizable number of
-digits that are difficult even for humans to discern (see Figure [?] for examples). Our net also seems to have
+digits that are difficult even for humans to discern (see Figure \ref{fig:misclassify} for examples). Our net also seems to have
 significant trouble with discerning the number 8, possibly because it has much in common with multiple other
 digits like 6 and 9, especially when squished. We feel that training on deformed versions of input images
 (say, squished versions of 8's) would significantly improve our net's performance on these digits.
