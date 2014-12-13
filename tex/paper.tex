@@ -280,7 +280,13 @@ including the classic sigmoid function and the hyperbolic tangent function.
 
 \begin{figure*}
   \includegraphics[width=\textwidth,height=8cm]{botharcs}
-  \caption{This is a tiger.}
+  \caption{The network on the left depicts the one convolutional/pooling layer architecture. The 20 
+  filters were of size $3 \times 3$, thus producing 20 feature maps of size $26 \times 26$. The pooling layer 
+  then subsamples these feature maps by a factor of 2. The network on the right depicts the two convolutional/pooling layer
+  architecture. This network adds a convolutional layer with 800 filters of size $8 \times 8$. Since these filters
+  are organized into kernels with 20 channels, this results in 40 $4 \times 4$ feature maps. The additional pooling
+  layer then subsamples by a factor of 2. Both networks contain a subsequent fully connected layer contains 150 units,
+  followed by the output layer of 10 units.}
   \label{fig:convarcs}
 \end{figure*}
 
@@ -303,7 +309,7 @@ network (discussion in section \ref{sec:full}), such that
 $$ I' \times W = [I*k_1 \hspace{10pt} I*k_2 \hspace{10pt} \cdots \hspace{10pt} I*k_K]$$
 where $I$ is the image, $W$ is the weight matrix of the fully connected network, $I$’ is the transformed
 image, and $k_i$ is the $i^{\text{th}}$ kernel. The learned filters would then correspond to slices of the kernels.
-We took the later approach for ease of implementation. Figure [?] demonstrates how this transformation
+We took the later approach for ease of implementation. Figure \ref{fig:convtrans} demonstrates how this transformation
 is accomplished.
 
 
@@ -400,14 +406,16 @@ The one convolutional/pooling layer architecture was trained for 50 iterations w
 (training set of 500 images), and was subsequently tested on
 1,000 new images per digit (test set of 10,000 images).
 The training images were taken from the easier portion of the training set, while the test images were taken from
-both sets. The results of this training can be seen in Figure \ref{fig:accplot}. The test accuracy was recorded every five training
-iterations. This trained network achieved an accuracy of 94\% and very quickly converged after five iterations of training. An example 
+both sets. The results of this training can be seen in Figure \ref{fig:accplot}. This trained network achieved an 
+accuracy of 94\% and very quickly converged after five iterations of training. An example 
 classification of an image with the activations and learned filters is presented
 in Figure \ref{fig:actfilts}. Figure [?] shows examples of correctly and incorrectly classified images.
 
 \begin{figure}
   \includegraphics[scale=0.55]{AccPlot}
-  \caption{This is also a tiger.}
+  \caption{Performance of differnet architectures and training set size. The one convolutional/pooling architecture with a training set 
+  of size 500 achieved an accuracy of 94\%, while it achieved an accuracy of 93.22\% on a training set of size 1000. The two convolutional/pooling
+  architecture achieved an accuracy of 92.8\%. Accuracy testing was performed after every five iterations of training.}
   \label{fig:accplot}
 \end{figure}
 
@@ -416,8 +424,8 @@ in Figure \ref{fig:actfilts}. Figure [?] shows examples of correctly and incorre
 The second experiment with the one convolutional/pooling layer architecture was also trained
 for 50 iterations but with 100 images per digit instead of 50 (training set of 1,000 images).
 This trained network was then tested on 1,000 new images per digit (test set of 10,000 images).
-The results of this training can be seen in Figure \ref{fig:accplot}.
-The test accuracy was recorded every five training iterations. This trained network achieved an accuracy of 93.22\% and also quickly converged after about five iterations of training.
+The results of this training can be seen in Figure \ref{fig:accplot}.This trained network 
+achieved an accuracy of 93.22\% and also quickly converged after about five iterations of training.
 Figure [?] shows examples of correctly and incorrectly classified images.
 
 %-------------------------------------------------------------------------
@@ -430,8 +438,7 @@ The two convolutional/pooling layer architecture was also trained for 50 iterati
 (test set of 10,000 images).
 The training images were taken from the easier portion of the training set,
 while the test images were taken from both sets.
-The results of this training can be seen in Figure \ref{fig:accplot}.
-Again, the test accuracy was recorded every five training iterations. This trained network achieved an accuracy of 92.8\% converging after about 10 iterations of training.
+The results of this training can be seen in Figure \ref{fig:accplot}. This trained network achieved an accuracy of 92.8\% converging after about 10 iterations of training.
 An example 
 classification of an image with the activations and learned filters is presented
 in Figure \ref{fig:actfilts}.
