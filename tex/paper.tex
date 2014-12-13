@@ -476,7 +476,10 @@ digits like 6 and 9, especially when squished. We feel that training on deformed
 
 \begin{figure*}
   \makebox[\textwidth][c]{\includegraphics[scale=0.72]{misclassify}}
-  \caption{This is a tiger. Rawr!}
+  \caption{The left side shows examples of correctly classified digits by the one convolutional/pooling layer architecture, while the left side shows examples of incorrectly
+  classified digits by the same architecture. The top right corner shows the correct label. The numbers below the image are the first and second place labels determined by the
+  CNN. Note how the miscalssified images can be seen to resemble the network's chosen label. The number 8 was misclassified multiple times, likely due to its similarlity to other
+  digits when deformed from its canonical form.}
   \label{fig:misclassify}
 \end{figure*}
 
