@@ -49,7 +49,7 @@ Massachusetts Institute of Technology\\
    that we use to classify digits from the popular MNIST dataset. We first lay a foundation
    for the merit of convolutional neural nets in object recognition, and then build on this
    foundation to explain our design decisions. The resulting CNN is able to achieve 94\% on the
-   MNIST digit dataset while training on only 2\% of the MNIST training set. We feel that the accuracy
+   MNIST digit test set while training on only 2\% of the MNIST training set. We feel that the accuracy
    of our CNN could still be improved by training on more images (especially deformed versions of images).
 \end{abstract}
 
@@ -90,7 +90,7 @@ To gain a deeper understanding of the challenges of implementing an object recog
 we designed and implemented a convolutional neural net and tested it on the popular MNIST
 digit dataset \cite{MNIST}.
 To examine the effect of the number of layers in convolutional neural networks,
-we trained two versions of our net with different depths on the MNIST training data
+we trained two versions of our net of different depths on the MNIST training data
 and compare their performance here.
 
 The rest of this paper is organized as follows.
@@ -186,11 +186,11 @@ two dimensional structure. This loss also makes translational invariance difficu
 
 We can construct a different way to use a hierarchical representation of an image for classification
 by performing convolutions at different scales of images with sets of filters.
-Convolutional Neural Nets (CNNs) use a combination of convolutional layers, which perform convolution
+Convolutional Neural Networks (CNNs) use a combination of convolutional layers, which perform convolution
 of an image with a set of filters, and pooling layers, which reduce the dimensionality of the output
 of convolutional layers, to create this representation. Convolutional layers serve to share the filter weights
 across the image and thus reduce the number of parameters that must be trained, while also providing
-a certain degree of traslational equivariance.
+a certain degree of translational equivariance.
 Pooling layers reduce dimensionality by taking the maximum value (max-pooling) or mean value
 (mean-pooling) of a region of convolutional outputs.
 This reduction of dimensionality is important because it helps reduce the number of parameters that
@@ -233,7 +233,7 @@ block is 1, of which only one can be non-zero.
 The CDBN is constructed by stacking max-pooling CRBMs, which are trained similarly to RBMs.
 
 The training of CDBNs is accomplished using the same greedy approach as in DBNs.
-Once the parameters have been learned, the CDBNs representation of an image can be computed
+Once the parameters have been learned, the CDBN's representation of an image can be computed
 by sampling from the joint distribution over all the hidden layers given the input image.
 The classification of images can be produced by training a classification algorithm
 on the higher level features.
@@ -256,9 +256,9 @@ is to insert altered forms of the input images into the dataset
   \includegraphics[width=\textwidth,height=8cm]{convtrans}
   \caption{Given an input image $I$ of size $w_{img} \times w_{img}$ with $c$ channels and $K$ kernels of size
   $w_k \times w_k$ with $c$ channels, each region on which the kernel is applied can be flattened to form a
-  row of a matrix $I’$ of size $(w_{img} - w_k + 1)^2 \times c \cdot w_k^2$. The set of kernels can also be
+  row of a matrix $I^{\prime}$ of size $(w_{img} - w_k + 1)^2 \times c \cdot w_k^2$. The set of kernels can also be
   flattened to form columns of a matrix $W$ of size $c \cdot w_k^2 \times K$. If we take the matrix product
-  of $I’$ and $W$, then the $i^\text{th}$ column of the resultant matrix is a flattened version of the image
+  of $I^{\prime}$ and $W$, then the $i^\text{th}$ column of the resultant matrix is a flattened version of the image
   convolved with the $i^\text{th}$ kernel. The matrix $W$ can be seen as the weights of a fully connected
   network with $c \cdot w_k^2$ inputs and $K$ outputs. Thus, learning of the kernels is reduced to batch
   learning of the weights of this fully connected network.
@@ -286,7 +286,7 @@ including the classic sigmoid function and the hyperbolic tangent function.
 The convolutional layer learns a set of small filters that when convolved with the input image
 during forward propagation extract salient features. This is done through the use of local
 connectivity and parameter sharing. Local connectivity refers to each unit of the convolutional
-layer being connected only to a small region of the image; this region is known as the unit’s
+layer being connected only to a small region of the image; this region is known as the unit's
 receptive field, and the weights of these connections form a filter. Neighboring units in the
 convolutional layer have overlapping receptive fields, with each receptive field being shifted
 by one pixel as you move along a certain dimension. These units are then organized into feature
@@ -295,12 +295,12 @@ and parameter sharing results in a network with sparser connectivity and fewer p
 would be present in a fully connected network.
 
 Though one could implement the convolutional layer directly by building the sparse network and
-applying the appropriate weight updates during the backpropagation step, it is also possible to
+applying the appropriate weight updates during the back-propagation step, it is also possible to
 transform this operation into the form of batch learning of the weights of a fully connected
 network (discussion in section \ref{sec:full}), such that
 
 $$ I' \times W = [I*k_1 \hspace{10pt} I*k_2 \hspace{10pt} \cdots \hspace{10pt} I*k_K]$$
-where $I$ is the image, $W$ is the weight matrix of the fully connected network, $I$’ is the transformed
+where $I$ is the image, $W$ is the weight matrix of the fully connected network, $I'$ is the transformed
 image, and $k_i$ is the $i^{\text{th}}$ kernel. The learned filters would then correspond to slices of the kernels.
 We took the later approach for ease of implementation. Figure \ref{fig:convtrans} demonstrates how this transformation
 is accomplished.
@@ -308,14 +308,13 @@ is accomplished.
 %-------------------------------------------------------------------------
 \subsection{Pooling Layer}
 
-The pooling layer reduces the dimension of its input by a factor of n. During forward propagation, each
-unit in the pooling layer looks at an n x n window and applies some pooling operator, either max or mean.
-Though these n x n windows could in principle overlap, in our implementation they do not. No learning occurs
-in this layer, thus backpropagation only serves to directly forward the errors to the previous layer.
+The pooling layer reduces the dimension of its input by a factor of $n$. During forward propagation, each
+unit in the pooling layer looks at an $n$ x $n$ window and applies some pooling operator, either max or mean.
+Though these $n$ x $n$ windows could in principle overlap, in our implementation they do not. No learning occurs
+in this layer, thus back-propagation only serves to directly forward the errors to the previous layer.
 If the pooling layer did max-pooling, then each pooling unit propagates the error to the input unit that
-had the max value with all other errors in that window being zero. If the pooling layer did mean-pooling,
-then each pooling unit propagates the value of the error divided by the number of input units is passed to all input units.
-
+had the max value with all other errors in that window being zero. If the pooling layer does mean-pooling,
+then each pooling unit propagates the value of the error divided by the number of input units to all input units.
 
 %-------------------------------------------------------------------------
 \subsection{Fully Connected Layer}
@@ -345,7 +344,7 @@ Because a single input image is broken up into multiple samples during convoluti
 fully connected layer is capable of batch training, where the update to a set of weights over
 many samples is the sum of updates for each sample. While batch training as a whole is generally
 slower than on-line training \cite{EfficientBackProp}, we are still performing on-line training
-with respect to each input image, so we do not take an unreasonable performance hit.
+with respect to the set of input images, so we do not take an unreasonable performance hit.
 
 Because our fully connected layer also affects the output of convolutional layers, its performance
 is crucial to the performance of our net as whole. Therefore common problems that multilayer
@@ -365,7 +364,7 @@ Another way we improved the likelihood of convergence was to make each weight up
 fully connected layer also depend on the previous weight update (this is sometimes
 referred to as momentum). With this change, the weight update equation for a fully connected
 layer becomes
-$$\Delta W_{t} = W_{t} - (\eta \frac{\partial E}{\partial W_{t}} +
+$$\Delta W_{t} = -(\eta \frac{\partial E}{\partial W_{t}} +
 \alpha \Delta W_{t-1})$$
 where $\eta$ is the learning rate and $\alpha$ is the momentum.
 Because many updates to $W$ have the same sign, this can effective speed up training time
@@ -377,7 +376,7 @@ the learning rates we used tended to be below $0.2$.
 One important suggestion from \cite{EfficientBackProp} that we did not use was the
 recommended sigmoid non-linear output function of $f(x) = 1.7159 * tanh(\frac{2}{3}x)$.
 While we experimented with the standard sigmoid of $f(x) = \frac{1}{1 + exp(-x)}$,
-we used $f(x) = tanh(x)$ for most of our results.
+we found $f(x) = tanh(x)$ to perform best for most of our experiments.
 
 %-------------------------------------------------------------------------
 \section{Experiments}
@@ -397,7 +396,7 @@ all layers was the hyperbolic tangent. A representation of these architectures c
 \subsection{MNIST Dataset}
 
 The following experiments were conducted using the MNIST dataset \cite{MNIST}, which includes a training set of
-60000 28x28 handwritten digit images and a test set of 10,000 28x28 handwritten digit images.
+60,000 28x28 handwritten digit images and a test set of 10,000 28x28 handwritten digit images.
 It is important to note that both the training and test sets are composed of two sets of digits:
 an easier set written by US Census Bureau employees and a harder set written by high school students.
 
@@ -406,29 +405,32 @@ an easier set written by US Census Bureau employees and a harder set written by 
 
 \subsubsection{Training Set of 500 Images}
 
-The one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit
-(training set of 500 images), and was subsequently tested on
-1,000 new images per digit (test set of 10,000 images).
+Our one convolutional/pooling layer architecture was trained for 50 iterations with 50 images per digit
+(for a training set of 500 images), and was subsequently tested on 1,000 new images per digit
+(for a test set of 10,000 images).
 The training images were taken from the easier portion of the training set, while the test images were taken from
 both sets. The results of this training can be seen in Figure \ref{fig:accplot}. This trained network achieved an
 accuracy of 94\% and very quickly converged after five iterations of training. An example
 classification of an image with the activations and learned filters is presented
-in Figure \ref{fig:actfilts}. Figure \ref{fig:misclassify} shows examples of correctly and incorrectly classified images.
+in Figure \ref{fig:actfilts}. Figure \ref{fig:misclassify} shows examples of correctly and incorrectly classified images on this architecture.
 
 \begin{figure}
   \includegraphics[scale=0.55]{AccPlot}
-  \caption{Performance of differnet architectures and training set size. The one convolutional/pooling architecture with a training set
-  of size 500 achieved an accuracy of 94\%, while it achieved an accuracy of 93.22\% on a training set of size 1000. The two convolutional/pooling
-  architecture achieved an accuracy of 92.8\%. Accuracy testing was performed after every five iterations of training.}
+  \caption{Performance of our different architectures labeled by training set size (all trained for 50
+  iterations).
+  The one convolutional/pooling architecture with a training set of 500 images achieved an accuracy of 94\%,
+  while with a training set of 1,000 images it achieved an accuracy of 93.22\%.
+  The two convolutional/pooling architecture achieved an accuracy of 92.8\%.
+  Accuracy testing was performed after every five iterations of training.}
   \label{fig:accplot}
 \end{figure}
 
 \subsubsection{Training Set of 1000 Images}
 
-The second experiment with the one convolutional/pooling layer architecture was also trained
-for 50 iterations but with 100 images per digit instead of 50 (training set of 1,000 images).
-This trained network was then tested on 1,000 new images per digit (test set of 10,000 images).
-The results of this training can be seen in Figure \ref{fig:accplot}.This trained network
+The second experiment with our one convolutional/pooling layer architecture was also trained
+for 50 iterations but with 100 images per digit instead of 50 (for a training set of 1,000 images).
+This trained network was then tested on 1,000 new images per digit (for a test set of 10,000 images).
+The results of this training can be seen in Figure \ref{fig:accplot}. This trained network
 achieved an accuracy of 93.22\% and also quickly converged after about five iterations of training.
 
 %-------------------------------------------------------------------------
@@ -437,8 +439,8 @@ achieved an accuracy of 93.22\% and also quickly converged after about five iter
 \subsubsection{Training Set of 500 Images}
 
 The two convolutional/pooling layer architecture was also trained for 50 iterations with 50 images per digit
-(training set of 500 images), and was subsequently tested on 1,000 new images per digit
-(test set of 10,000 images).
+(for a training set of 500 images), and was subsequently tested on 1,000 new images per digit
+(for a test set of 10,000 images).
 The training images were taken from the easier portion of the training set,
 while the test images were taken from both sets.
 The results of this training can be seen in Figure \ref{fig:accplot}. This trained network achieved an accuracy of 92.8\% converging after about 10 iterations of training.
@@ -469,16 +471,16 @@ digits like 6 and 9, especially when squished. We feel that training on deformed
 \begin{figure*}
   \makebox[\textwidth][c]{\includegraphics[scale=0.72]{actfilts}}
   \caption{This presents a snapshot of our two networks when classifying the number three. On the left, the activations and filters for the one convolutional/pooling layer
-  architecture is shown, while the activations and filters for two convolutional/pooling layer architecture can be seen on the right. As can be seen by the activation of the 
+  architecture is shown, while the activations and filters for two convolutional/pooling layer architecture can be seen on the right. As can be seen by the activation of the
   first convolutional layer of both networks, the respective filters are essentially acting as edge detectors.}
   \label{fig:actfilts}
 \end{figure*}
 
 \begin{figure*}
   \makebox[\textwidth][c]{\includegraphics[scale=0.72]{misclassify}}
-  \caption{The left side shows examples of correctly classified digits by the one convolutional/pooling layer architecture, while the left side shows examples of incorrectly
-  classified digits by the same architecture. The top right corner shows the correct label. The numbers below the image are the first and second place labels determined by the
-  CNN. Note how the miscalssified images can be seen to resemble the network's chosen label. The number 8 was misclassified multiple times, likely due to its similarlity to other
+  \caption{The left side shows examples of correctly classified digits by the one convolutional/pooling layer architecture, while the right side shows examples of incorrectly
+  classified digits by the same architecture. The top right corner shows the correct label. The numbers below the image are the first and second place labels determined by our
+  CNN. Note how the misclassified images can be seen to resemble the network's chosen label. The number 8 was misclassified multiple times, likely due to its similarity to other
   digits when deformed from its canonical form.}
   \label{fig:misclassify}
 \end{figure*}
